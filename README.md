@@ -79,7 +79,8 @@ And for all the properties, there are several stub strings that will be replaced
 
 * *cmakeClean*: Cleans the workingFolder.
 
-* *cmakeGenerators*: Trys to list the generators available on the current platform by parsing `cmake --help`'s output.
+* *cmakeListGenerators*: Trys to list the generators available on the current platform by parsing `cmake --help`'s
+  output.
 
 * *cmakeVersion*: CMake's version info. `cmake --version`'s output.
 
