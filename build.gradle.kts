@@ -1,3 +1,5 @@
+import java.util.*
+
 plugins {
     kotlin("jvm") version "1.9.21"
     id("com.gradle.plugin-publish") version "1.0.0"
@@ -6,6 +8,22 @@ plugins {
 
 group = "io.github.isning.gradle.plugins"
 version = "1.0-SNAPSHOT"
+
+val localPropsFile = project.rootProject.file("credentials.properties")
+if (localPropsFile.exists()) {
+    val properties = Properties().apply { load(localPropsFile.reader()) }
+    if (properties.isNotEmpty()) {
+        properties.onEach { (key, value) ->
+            ext[key.toString()] = value
+        }
+    }
+}
+
+if (!ext.has("gradle.publish.key")) ext["gradle.publish.key"] =
+    System.getenv("GRADLE_PUBLISH_KEY")
+if (!ext.has("gradle.publish.secret")) ext["gradle.publish.secret"] =
+    System.getenv("GRADLE_PUBLISH_SECRET")
+
 
 repositories {
     mavenCentral()
