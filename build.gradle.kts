@@ -36,8 +36,8 @@ dependencies {
 }
 
 gradlePlugin {
-    website.set("https://github.com/ISNing/GradlePlugins")
-    vcsUrl.set("https://github.com/ISNing/GradlePlugins")
+    website.set("https://github.com/ISNing/CMakePlugin")
+    vcsUrl.set("https://github.com/ISNing/CMakePlugin")
 
     plugins {
         create("cmake") {
