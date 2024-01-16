@@ -18,6 +18,7 @@
 package io.github.isning.gradle.plugins.cmake
 
 import io.github.isning.gradle.plugins.cmake.params.*
+import io.github.isning.gradle.plugins.cmake.utils.delegateItemsTo
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
@@ -58,10 +59,13 @@ open class CMakePluginExtension(val project: Project) :
         get() = buildParamsProp.orNull
         set(value) = buildParamsProp.set(value)
 
+    val rawProjects: NamedDomainObjectContainer<CMakeProject> =
+        project.container(CMakeProject::class.java)
+
     val projects: NamedDomainObjectContainer<CMakeProjectImpl> =
         project.container(CMakeProjectImpl::class.java) { name: String ->
             CMakeProjectImpl(project, name)
-        }
+        }.also { it.delegateItemsTo(rawProjects) }
 
     init {
         executable = "cmake"
@@ -75,8 +79,8 @@ open class CMakePluginExtension(val project: Project) :
     }
 
     override fun registerTasks(inheritedConfigurations: List<CMakeConfiguration>, inheritedNames: List<String>) {
-        for (project in projects) {
-            project.registerTasks((inheritedConfigurations + this).map {
+        for (project in rawProjects) {
+            if (project is TasksRegister) project.registerTasks((inheritedConfigurations + this).map {
                 object : CMakeConfiguration {
                     override val executable: String? = it.executable
                     override val workingFolder: File? = it.workingFolder

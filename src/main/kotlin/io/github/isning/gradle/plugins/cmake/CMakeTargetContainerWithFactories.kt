@@ -30,7 +30,7 @@ interface CMakeTargetFactory<T : CMakeTarget> : Named {
 }
 
 interface CMakeTargetContainer {
-    val targetCollection: NamedDomainObjectCollection<CMakeTarget>
+    val rawTargets: NamedDomainObjectCollection<CMakeTarget>
 }
 
 interface CMakeTargetContainerWithFactories : CMakeTargetContainer {
@@ -42,11 +42,11 @@ internal inline fun <reified T : CMakeTarget> CMakeTargetContainerWithFactories.
     targetFactory: CMakeTargetFactory<T>,
     configure: T.() -> Unit,
 ): T {
-    when (val existingTarget = targetCollection.findByName(targetName)) {
+    when (val existingTarget = rawTargets.findByName(targetName)) {
         null -> {
             val newTarget = targetFactory.create(targetName)
             if (newTarget != null) {
-                targetCollection.add(newTarget)
+                rawTargets.add(newTarget)
                 configure(newTarget)
                 return newTarget
             } else error("The target '$targetName' could not be created with the '${targetFactory.factoryName}' factory")

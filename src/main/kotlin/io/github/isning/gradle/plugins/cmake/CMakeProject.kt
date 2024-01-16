@@ -17,6 +17,7 @@
 package io.github.isning.gradle.plugins.cmake
 
 import io.github.isning.gradle.plugins.cmake.params.*
+import io.github.isning.gradle.plugins.cmake.utils.delegateItemsTo
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectCollection
 import org.gradle.api.NamedDomainObjectContainer
@@ -31,7 +32,7 @@ interface CMakeProject : Named, CMakeConfiguration {
     override val workingFolder: File?
     override val configParams: CMakeParams?
     override val buildParams: CMakeParams?
-    val targetList: List<CMakeTarget>
+    val rawTargets: Set<CMakeTarget>
 }
 
 class CMakeProjectImpl(val project: Project, val projectName: String) : Named,
@@ -67,20 +68,22 @@ class CMakeProjectImpl(val project: Project, val projectName: String) : Named,
         get() = buildParamsProp.orNull
         set(value) = buildParamsProp.set(value)
 
-    override val targetList: List<CMakeTarget>
-        get() = targetCollection.toList()
-
     override val factories: NamedDomainObjectCollection<CMakeTargetFactory<*>> =
         project.container(CMakeTargetFactory::class.java)
 
-    override val targetCollection: NamedDomainObjectContainer<CMakeTarget> =
+    override val rawTargets: NamedDomainObjectContainer<CMakeTarget> =
+        project.container(CMakeTarget::class.java)
+
+    @Suppress("UNCHECKED_CAST")
+    val targets: NamedDomainObjectContainer<CMakeTargetImpl<ModifiableCMakeGeneralParamsImpl, ModifiableCMakeBuildParamsImpl>> =
         project.container(CMakeTarget::class.java) { name: String ->
             CMakeTargetImpl(project, name, {
                 ModifiableCMakeGeneralParamsImpl()
             }, {
                 ModifiableCMakeBuildParamsImpl()
             })
-        }
+        }.also { it.delegateItemsTo(rawTargets) }
+                as NamedDomainObjectContainer<CMakeTargetImpl<ModifiableCMakeGeneralParamsImpl, ModifiableCMakeBuildParamsImpl>>
 
     override val configParamsInitialOverlay: CMakeParams = ModifiableCMakeGeneralParamsImpl {
         sourceDir = project.layout.projectDirectory.dir("src/main/cpp").asFile.absolutePath
@@ -98,7 +101,7 @@ class CMakeProjectImpl(val project: Project, val projectName: String) : Named,
     }
 
     override fun registerTasks(inheritedConfigurations: List<CMakeConfiguration>, inheritedNames: List<String>) {
-        this.targetCollection.forEach {
+        this.rawTargets.forEach {
             if (it is TasksRegister)
                 it.registerTasks((inheritedConfigurations + this).map { configuration ->
                     object : CMakeConfiguration {
