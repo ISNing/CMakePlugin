@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "io.github.isning.gradle.plugins"
-version = "1.0.0"
+version = "1.0-SNAPSHOT"
 
 val localPropsFile = project.rootProject.file("credentials.properties")
 if (localPropsFile.exists()) {
