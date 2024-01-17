@@ -28,19 +28,11 @@ import org.gradle.internal.Factory
 import java.io.File
 
 interface CMakeProject : Named, CMakeConfiguration {
-    override val executable: String?
-    override val workingFolder: File?
-    override val configParams: CMakeParams?
-    override val buildParams: CMakeParams?
     val rawTargets: Set<CMakeTarget>
 }
 
 interface ModifiableCMakeProject : CMakeProject,
     ModifiableCMakeConfiguration<ModifiableCMakeGeneralParams, ModifiableCMakeBuildParams> {
-    override var executable: String?
-    override var workingFolder: File?
-    override var configParams: CMakeParams?
-    override var buildParams: CMakeParams?
     override val rawTargets: MutableSet<CMakeTarget>
 }
 
