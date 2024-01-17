@@ -41,6 +41,7 @@ interface ModifiableCMakeProject : CMakeProject,
     override var workingFolder: File?
     override var configParams: CMakeParams?
     override var buildParams: CMakeParams?
+    override val rawTargets: MutableSet<CMakeTarget>
 }
 
 class CMakeProjectImpl(val project: Project, val projectName: String) : Named,
