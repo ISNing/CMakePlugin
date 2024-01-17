@@ -35,9 +35,17 @@ interface CMakeProject : Named, CMakeConfiguration {
     val rawTargets: Set<CMakeTarget>
 }
 
+interface ModifiableCMakeProject : CMakeProject,
+    ModifiableCMakeConfiguration<ModifiableCMakeGeneralParams, ModifiableCMakeBuildParams> {
+    override var executable: String?
+    override var workingFolder: File?
+    override var configParams: CMakeParams?
+    override var buildParams: CMakeParams?
+}
+
 class CMakeProjectImpl(val project: Project, val projectName: String) : Named,
     ModifiableCMakeConfiguration<ModifiableCMakeGeneralParams, ModifiableCMakeBuildParams>,
-    TasksRegister, CMakeProject, CMakeTargetContainerWithFactoriesRegisterer {
+    TasksRegister, CMakeTargetContainerWithFactoriesRegisterer, ModifiableCMakeProject {
     override fun getName(): String = projectName
 
     val executableProp: Property<String> = project.objects.property(String::class.java)
