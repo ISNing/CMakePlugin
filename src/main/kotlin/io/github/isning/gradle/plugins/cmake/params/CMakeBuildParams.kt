@@ -17,6 +17,7 @@
 package io.github.isning.gradle.plugins.cmake.params
 
 import io.github.isning.gradle.plugins.cmake.utils.ExplicitlyModifiedElementsRecorderImpl
+import io.github.isning.gradle.plugins.cmake.utils.findParameterValue
 import io.github.isning.gradle.plugins.cmake.utils.warpQuotes
 
 interface CMakeBuildParamsParamsToBeRemovedRecorded : CMakeBuildParams,
@@ -113,3 +114,6 @@ internal val buildParamsRegexMap: Map<String, String> = mapOf(
     "verbose" to """--verbose""",
     "nativeOptions" to """--\s+(.+)""",
 )
+
+val CMakeParams.buildDirForBuild: String?
+    get() = filteredValue.findParameterValue("--build")

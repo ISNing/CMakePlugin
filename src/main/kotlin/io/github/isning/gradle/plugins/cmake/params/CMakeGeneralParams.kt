@@ -17,6 +17,7 @@
 package io.github.isning.gradle.plugins.cmake.params
 
 import io.github.isning.gradle.plugins.cmake.utils.ExplicitlyModifiedElementsRecorderImpl
+import io.github.isning.gradle.plugins.cmake.utils.findParameterValue
 import io.github.isning.gradle.plugins.cmake.utils.warpQuotes
 
 interface CMakeGeneralParamsParamsToBeRemovedRecorded : CMakeGeneralParams,
@@ -357,3 +358,9 @@ internal val generalParamsRegexMap: Map<String, String> = mapOf(
     "profilingFormat" to """--profiling-format=([^\s]+)""",
     "profilingOutput" to """--profiling-output=([^\s]+)""",
 )
+
+val CMakeParams.sourceDir: String?
+    get() = filteredValue.findParameterValue("-S")
+
+val CMakeParams.buildDirForConfigure: String?
+    get() = filteredValue.findParameterValue("-B")

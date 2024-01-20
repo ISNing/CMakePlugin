@@ -17,8 +17,7 @@
 package io.github.isning.gradle.plugins.cmake
 
 import io.github.isning.gradle.plugins.cmake.params.CMakeParams
-import io.github.isning.gradle.plugins.cmake.params.filteredValue
-import io.github.isning.gradle.plugins.cmake.utils.findParameterValue
+import io.github.isning.gradle.plugins.cmake.params.buildDirForBuild
 import org.gradle.api.Task
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.OutputDirectory
@@ -31,7 +30,7 @@ open class CMakeBuildTask : AbstractCMakeExecuteTask(), Task {
 
     @get:OutputDirectory
     val buildDir: String
-        get() = parameters.orNull?.filteredValue?.findParameterValue("--build")
+        get() = parameters.orNull?.buildDirForBuild
             ?: error("CMake Build Task must have a build directory specified")
 
     init {

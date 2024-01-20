@@ -17,8 +17,8 @@
 package io.github.isning.gradle.plugins.cmake
 
 import io.github.isning.gradle.plugins.cmake.params.CMakeParams
-import io.github.isning.gradle.plugins.cmake.params.filteredValue
-import io.github.isning.gradle.plugins.cmake.utils.findParameterValue
+import io.github.isning.gradle.plugins.cmake.params.buildDirForConfigure
+import io.github.isning.gradle.plugins.cmake.params.sourceDir
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
@@ -28,12 +28,12 @@ open class CMakeConfigureTask : AbstractCMakeExecuteTask() {
 
     @get:InputDirectory
     val sourceDir: String
-        get() = parameters.orNull?.filteredValue?.findParameterValue("-S")
+        get() = parameters.orNull?.sourceDir
             ?: error("CMake Configure Task must have a source directory specified")
 
     @get:OutputDirectory
     val buildDir: String
-        get() = parameters.orNull?.filteredValue?.findParameterValue("-B")
+        get() = parameters.orNull?.buildDirForConfigure
             ?: error("CMake Configure Task must have a build directory specified")
 
     init {
