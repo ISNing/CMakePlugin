@@ -50,3 +50,8 @@ fun CMakeParams.replaceWith(original: String, replacement: String): CMakeParams 
     )
 
 fun Iterable<String>.filterOutBy(regexps: Iterable<String>): List<String> = filter { it.matchesNoneOf(regexps) }
+
+fun emptyCMakeParams(): CMakeParams = CustomCMakeParams(emptyList())
+
+val CMakeParams?.orEmpty: CMakeParams
+    get() = this ?: emptyCMakeParams()
