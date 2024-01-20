@@ -52,7 +52,11 @@ interface ModifiableCMakeConfiguration<C : CMakeParams?, B : CMakeParams?> : CMa
         }
 }
 
-abstract class AbstractCMakeConfiguration<C : ModifiableCMakeGeneralParams, B : ModifiableCMakeBuildParams>(val project: Project) :
+abstract class AbstractCMakeConfiguration<C : ModifiableCMakeGeneralParams, B : ModifiableCMakeBuildParams>(
+    val project: Project,
+    private val buildParamsInitialOverlayProvider: () -> CMakeParams? = { null },
+    private val configParamsInitialOverlayProvider: () -> CMakeParams? = { null }
+) :
     ModifiableCMakeConfiguration<C, B> {
     val executableProp: Property<String> = project.objects.property(String::class.java)
     val workingFolderProp: DirectoryProperty = project.objects.directoryProperty()
@@ -70,6 +74,10 @@ abstract class AbstractCMakeConfiguration<C : ModifiableCMakeGeneralParams, B : 
     override var buildParams: CMakeParams?
         get() = buildParamsInitialOverlay.orEmpty + buildParamsProp.orNull.orEmpty
         set(value) = buildParamsProp.set(value)
+    override val configParamsInitialOverlay: CMakeParams?
+        get() = configParamsInitialOverlayProvider()
+    override val buildParamsInitialOverlay: CMakeParams?
+        get() = buildParamsInitialOverlayProvider()
 }
 
 interface CMakeExecutionConfiguration {

@@ -76,8 +76,8 @@ open class CMakeTargetImpl<C : ModifiableCMakeGeneralParams, B : ModifiableCMake
     project: Project, name: String,
     override val cleanConfigParamsFactory: Factory<C>,
     override val cleanBuildParamsFactory: Factory<B>,
-    val buildParamsInitialOverlayProvider: () -> CMakeParams?,
-    val configParamsInitialOverlayProvider: () -> CMakeParams?,
+    buildParamsInitialOverlayProvider: () -> CMakeParams?,
+    configParamsInitialOverlayProvider: () -> CMakeParams?,
 ) : AbstractCMakeTarget<C, B>(
     project,
     name,
@@ -97,8 +97,4 @@ open class CMakeTargetImpl<C : ModifiableCMakeGeneralParams, B : ModifiableCMake
         { configParamsInitialOverlay },
     )
 
-    override val configParamsInitialOverlay: CMakeParams?
-        get() = configParamsInitialOverlayProvider()
-    override val buildParamsInitialOverlay: CMakeParams?
-        get() = buildParamsInitialOverlayProvider()
 }
