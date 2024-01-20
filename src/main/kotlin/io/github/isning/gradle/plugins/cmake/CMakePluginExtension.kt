@@ -21,20 +21,13 @@ import io.github.isning.gradle.plugins.cmake.params.*
 import io.github.isning.gradle.plugins.cmake.utils.delegateItemsTo
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.provider.Property
 import org.gradle.internal.Factory
 import java.io.File
 
 const val EXTENSION_NAME_CMAKE = "cmake"
 
-open class CMakePluginExtension(val project: Project) :
-    ModifiableCMakeConfiguration<ModifiableCMakeGeneralParams, ModifiableCMakeBuildParams>, TasksRegister {
-    // parameters used by config and build step
-    val executableProp: Property<String> = project.objects.property(String::class.java)
-    val workingFolderProp: DirectoryProperty = project.objects.directoryProperty()
-    val configParamsProp: Property<CMakeParams> = project.objects.property(CMakeParams::class.java)
-    val buildParamsProp: Property<CMakeParams> = project.objects.property(CMakeParams::class.java)
+open class CMakePluginExtension(project: Project) :
+    AbstractCMakeConfiguration<ModifiableCMakeGeneralParams, ModifiableCMakeBuildParams>(project), TasksRegister {
 
     override val cleanConfigParamsFactory: Factory<ModifiableCMakeGeneralParams> = Factory {
         ModifiableCMakeGeneralParamsImpl()
@@ -42,22 +35,6 @@ open class CMakePluginExtension(val project: Project) :
     override val cleanBuildParamsFactory: Factory<ModifiableCMakeBuildParams> = Factory {
         ModifiableCMakeBuildParamsImpl()
     }
-
-    final override var executable: String?
-        get() = executableProp.orNull
-        set(value) = executableProp.set(value)
-
-    final override var workingFolder: File?
-        get() = workingFolderProp.orNull?.asFile
-        set(value) = workingFolderProp.set(value)
-
-    final override var configParams: CMakeParams?
-        get() = configParamsProp.orNull
-        set(value) = configParamsProp.set(value)
-
-    final override var buildParams: CMakeParams?
-        get() = buildParamsProp.orNull
-        set(value) = buildParamsProp.set(value)
 
     val rawProjects: NamedDomainObjectContainer<CMakeProject> =
         project.container(CMakeProject::class.java)
@@ -70,12 +47,6 @@ open class CMakePluginExtension(val project: Project) :
     init {
         executable = "cmake"
         workingFolder = project.layout.buildDirectory.dir("cmake").get().asFile
-        configParams = ModifiableCMakeGeneralParamsImpl().let { emptyParams ->
-            configParamsInitialOverlay?.plus(emptyParams)
-        }
-        buildParams = ModifiableCMakeBuildParamsImpl().let { emptyParams ->
-            buildParamsInitialOverlay?.plus(emptyParams) ?: emptyParams
-        }
     }
 
     override fun registerTasks(inheritedConfigurations: List<CMakeConfiguration>, inheritedNames: List<String>) {

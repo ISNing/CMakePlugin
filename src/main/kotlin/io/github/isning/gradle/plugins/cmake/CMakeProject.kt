@@ -22,8 +22,6 @@ import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectCollection
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.provider.Property
 import org.gradle.internal.Factory
 import java.io.File
 
@@ -36,15 +34,23 @@ interface ModifiableCMakeProject : CMakeProject,
     override val rawTargets: MutableSet<CMakeTarget>
 }
 
-class CMakeProjectImpl(val project: Project, val projectName: String) : Named,
-    ModifiableCMakeConfiguration<ModifiableCMakeGeneralParams, ModifiableCMakeBuildParams>,
+class CMakeProjectImpl(
+    project: Project, val projectName: String,
+    buildParamsInitialOverlayProvider: () -> CMakeParams?,
+    configParamsInitialOverlayProvider: () -> CMakeParams?
+) : Named,
+    AbstractCMakeConfiguration<ModifiableCMakeGeneralParams, ModifiableCMakeBuildParams>
+        (project, buildParamsInitialOverlayProvider, configParamsInitialOverlayProvider),
     TasksRegister, CMakeTargetContainerWithFactoriesRegisterer, ModifiableCMakeProject {
-    override fun getName(): String = projectName
 
-    val executableProp: Property<String> = project.objects.property(String::class.java)
-    val workingFolderProp: DirectoryProperty = project.objects.directoryProperty()
-    val configParamsProp: Property<CMakeParams> = project.objects.property(CMakeParams::class.java)
-    val buildParamsProp: Property<CMakeParams> = project.objects.property(CMakeParams::class.java)
+    constructor(
+        project: Project,
+        projectName: String,
+        buildParamsInitialOverlay: CMakeParams? = null,
+        configParamsInitialOverlay: CMakeParams? = null
+    ) : this(project, projectName, { buildParamsInitialOverlay }, { configParamsInitialOverlay })
+
+    override fun getName(): String = projectName
 
     override val cleanConfigParamsFactory: Factory<ModifiableCMakeGeneralParams> = Factory {
         ModifiableCMakeGeneralParamsImpl()
@@ -52,22 +58,6 @@ class CMakeProjectImpl(val project: Project, val projectName: String) : Named,
     override val cleanBuildParamsFactory: Factory<ModifiableCMakeBuildParams> = Factory {
         ModifiableCMakeBuildParamsImpl()
     }
-
-    override var executable: String?
-        get() = executableProp.orNull
-        set(value) = executableProp.set(value)
-
-    override var workingFolder: File?
-        get() = workingFolderProp.orNull?.asFile
-        set(value) = workingFolderProp.set(value)
-
-    override var configParams: CMakeParams?
-        get() = configParamsProp.orNull
-        set(value) = configParamsProp.set(value)
-
-    override var buildParams: CMakeParams?
-        get() = buildParamsProp.orNull
-        set(value) = buildParamsProp.set(value)
 
     override val factories: NamedDomainObjectCollection<CMakeTargetFactory<*>> =
         project.container(CMakeTargetFactory::class.java)
@@ -86,18 +76,13 @@ class CMakeProjectImpl(val project: Project, val projectName: String) : Named,
         }.also { it.delegateItemsTo(rawTargets) }
                 as NamedDomainObjectContainer<CMakeTargetImpl<ModifiableCMakeGeneralParamsImpl, ModifiableCMakeBuildParamsImpl>>
 
-    override val configParamsInitialOverlay: CMakeParams = ModifiableCMakeGeneralParamsImpl {
-        sourceDir = project.layout.projectDirectory.dir("src/main/cpp").asFile.absolutePath
-        buildDir = project.layout.buildDirectory.dir("cmake").get().asFile.absolutePath
-    }
+    override val configParamsInitialOverlay: CMakeParams
+        get() = ModifiableCMakeGeneralParamsImpl {
+            sourceDir = project.layout.projectDirectory.dir("src/main/cpp").asFile.absolutePath
+            buildDir = project.layout.buildDirectory.dir("cmake").get().asFile.absolutePath
+        } + super<AbstractCMakeConfiguration>.configParamsInitialOverlay.orEmpty
 
     init {
-        configParams = ModifiableCMakeGeneralParamsImpl().let { emptyParams ->
-            configParamsInitialOverlay.plus(emptyParams)
-        }
-        buildParams = ModifiableCMakeBuildParamsImpl().let { emptyParams ->
-            buildParamsInitialOverlay?.plus(emptyParams) ?: emptyParams
-        }
         registerFactories(project)
     }
 

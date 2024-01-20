@@ -18,12 +18,13 @@
  */
 package io.github.isning.gradle.plugins.cmake
 
-import io.github.isning.gradle.plugins.cmake.params.*
+import io.github.isning.gradle.plugins.cmake.params.CMakeParams
+import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeBuildParams
+import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeGeneralParams
+import io.github.isning.gradle.plugins.cmake.params.replaceWith
 import io.github.isning.gradle.plugins.cmake.utils.upperCamelCaseName
 import org.gradle.api.Named
 import org.gradle.api.Project
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.provider.Property
 import org.gradle.internal.Factory
 import java.io.File
 
@@ -35,36 +36,9 @@ interface ModifiableCMakeTarget<C : ModifiableCMakeGeneralParams, B : Modifiable
 operator fun <T : CMakeParams> T.invoke(configure: T.() -> Unit): Unit = configure()
 
 abstract class AbstractCMakeTarget<C : ModifiableCMakeGeneralParams, B : ModifiableCMakeBuildParams>(
-    val project: Project,
+    project: Project,
     val targetName: String,
-) : TasksRegister, ModifiableCMakeTarget<C, B> {
-    val executableProp: Property<String> = project.objects.property(String::class.java)
-    val workingFolderProp: DirectoryProperty = project.objects.directoryProperty()
-
-    val configParamsProp: Property<CMakeParams> = project.objects.property(CMakeParams::class.java)
-
-    val buildParamsProp: Property<CMakeParams> = project.objects.property(CMakeParams::class.java)
-    override var executable: String?
-        get() = executableProp.orNull
-        set(value) = executableProp.set(value)
-    override var workingFolder: File?
-        get() = workingFolderProp.orNull?.asFile
-        set(value) = workingFolderProp.set(value)
-    final override var configParams: CMakeParams?
-        get() = configParamsProp.orNull
-        set(value) = configParamsProp.set(value)
-    final override var buildParams: CMakeParams?
-        get() = buildParamsProp.orNull
-        set(value) = buildParamsProp.set(value)
-
-    init {
-        configParams = ModifiableCMakeGeneralParamsImpl().let { emptyParams ->
-            configParamsInitialOverlay?.plus(emptyParams) ?: emptyParams
-        }
-        buildParams = ModifiableCMakeBuildParamsImpl().let { emptyParams ->
-            buildParamsInitialOverlay?.plus(emptyParams) ?: emptyParams
-        }
-    }
+) : AbstractCMakeConfiguration<C, B>(project), ModifiableCMakeTarget<C, B>, TasksRegister {
 
     override fun getName(): String = targetName
 
@@ -102,9 +76,29 @@ open class CMakeTargetImpl<C : ModifiableCMakeGeneralParams, B : ModifiableCMake
     project: Project, name: String,
     override val cleanConfigParamsFactory: Factory<C>,
     override val cleanBuildParamsFactory: Factory<B>,
-    override val buildParamsInitialOverlay: CMakeParams? = null,
-    override val configParamsInitialOverlay: CMakeParams? = null,
+    val buildParamsInitialOverlayProvider: () -> CMakeParams?,
+    val configParamsInitialOverlayProvider: () -> CMakeParams?,
 ) : AbstractCMakeTarget<C, B>(
     project,
     name,
-)
+) {
+    constructor(
+        project: Project, name: String,
+        cleanConfigParamsFactory: Factory<C>,
+        cleanBuildParamsFactory: Factory<B>,
+        buildParamsInitialOverlay: CMakeParams? = null,
+        configParamsInitialOverlay: CMakeParams? = null,
+    ) : this(
+        project,
+        name,
+        cleanConfigParamsFactory,
+        cleanBuildParamsFactory,
+        { buildParamsInitialOverlay },
+        { configParamsInitialOverlay },
+    )
+
+    override val configParamsInitialOverlay: CMakeParams?
+        get() = configParamsInitialOverlayProvider()
+    override val buildParamsInitialOverlay: CMakeParams?
+        get() = buildParamsInitialOverlayProvider()
+}
