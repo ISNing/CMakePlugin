@@ -59,7 +59,7 @@ abstract class AbstractCMakeTarget<C : ModifiableCMakeGeneralParams, B : Modifia
 
     init {
         configParams = ModifiableCMakeGeneralParamsImpl().let { emptyParams ->
-            configParamsInitialOverlay?.plus(emptyParams)
+            configParamsInitialOverlay?.plus(emptyParams) ?: emptyParams
         }
         buildParams = ModifiableCMakeBuildParamsImpl().let { emptyParams ->
             buildParamsInitialOverlay?.plus(emptyParams) ?: emptyParams
