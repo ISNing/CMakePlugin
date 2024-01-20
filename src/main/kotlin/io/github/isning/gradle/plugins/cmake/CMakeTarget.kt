@@ -100,7 +100,10 @@ abstract class AbstractCMakeTarget<C : ModifiableCMakeGeneralParams, B : Modifia
 
 open class CMakeTargetImpl<C : ModifiableCMakeGeneralParams, B : ModifiableCMakeBuildParams>(
     project: Project, name: String,
-    override val cleanConfigParamsFactory: Factory<C>, override val cleanBuildParamsFactory: Factory<B>,
+    override val cleanConfigParamsFactory: Factory<C>,
+    override val cleanBuildParamsFactory: Factory<B>,
+    override val buildParamsInitialOverlay: CMakeParams? = null,
+    override val configParamsInitialOverlay: CMakeParams? = null,
 ) : AbstractCMakeTarget<C, B>(
     project,
     name,
