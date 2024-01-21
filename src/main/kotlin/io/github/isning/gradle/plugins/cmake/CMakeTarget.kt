@@ -38,7 +38,10 @@ operator fun <T : CMakeParams> T.invoke(configure: T.() -> Unit): Unit = configu
 abstract class AbstractCMakeTarget<C : ModifiableCMakeGeneralParams, B : ModifiableCMakeBuildParams>(
     project: Project,
     val targetName: String,
-) : AbstractCMakeConfiguration<C, B>(project), ModifiableCMakeTarget<C, B>, TasksRegister {
+    buildParamsInitialOverlayProvider: () -> CMakeParams?,
+    configParamsInitialOverlayProvider: () -> CMakeParams?,
+) : AbstractCMakeConfiguration<C, B>(project, buildParamsInitialOverlayProvider, configParamsInitialOverlayProvider),
+    ModifiableCMakeTarget<C, B>, TasksRegister {
 
     override fun getName(): String = targetName
 
@@ -81,6 +84,8 @@ open class CMakeTargetImpl<C : ModifiableCMakeGeneralParams, B : ModifiableCMake
 ) : AbstractCMakeTarget<C, B>(
     project,
     name,
+    buildParamsInitialOverlayProvider,
+    configParamsInitialOverlayProvider,
 ) {
     constructor(
         project: Project, name: String,
@@ -96,5 +101,4 @@ open class CMakeTargetImpl<C : ModifiableCMakeGeneralParams, B : ModifiableCMake
         { buildParamsInitialOverlay },
         { configParamsInitialOverlay },
     )
-
 }
