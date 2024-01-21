@@ -17,6 +17,7 @@
 package io.github.isning.gradle.plugins.cmake
 
 import io.github.isning.gradle.plugins.cmake.params.*
+import io.github.isning.gradle.plugins.cmake.utils.Delegated
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
@@ -31,15 +32,12 @@ interface CMakeConfiguration {
 }
 
 interface ModifiableCMakeConfiguration<C : CMakeParams?, B : CMakeParams?> : CMakeConfiguration {
+    override var executable: String?
+    override var workingFolder: File?
     override var configParams: CMakeParams?
     override var buildParams: CMakeParams?
     val cleanConfigParamsFactory: Factory<C>
     val cleanBuildParamsFactory: Factory<B>
-
-    val configParamsInitialOverlay: CMakeParams?
-        get() = null
-    val buildParamsInitialOverlay: CMakeParams?
-        get() = null
 
     fun configParams(configure: C.() -> Unit) =
         cleanConfigParamsFactory.create()!!.apply(configure).let { new ->
@@ -54,8 +52,6 @@ interface ModifiableCMakeConfiguration<C : CMakeParams?, B : CMakeParams?> : CMa
 
 abstract class AbstractCMakeConfiguration<C : ModifiableCMakeGeneralParams, B : ModifiableCMakeBuildParams>(
     val project: Project,
-    private val buildParamsInitialOverlayProvider: () -> CMakeParams? = { null },
-    private val configParamsInitialOverlayProvider: () -> CMakeParams? = { null }
 ) :
     ModifiableCMakeConfiguration<C, B> {
     val executableProp: Property<String> = project.objects.property(String::class.java)
@@ -68,17 +64,106 @@ abstract class AbstractCMakeConfiguration<C : ModifiableCMakeGeneralParams, B : 
     override var workingFolder: File?
         get() = workingFolderProp.orNull?.asFile
         set(value) = workingFolderProp.set(value)
+
     override var configParams: CMakeParams?
-        get() = configParamsInitialOverlay.orEmpty + configParamsProp.orNull.orEmpty
+        get() = configParamsProp.orNull
         set(value) = configParamsProp.set(value)
     override var buildParams: CMakeParams?
-        get() = buildParamsInitialOverlay.orEmpty + buildParamsProp.orNull.orEmpty
+        get() = buildParamsProp.orNull
         set(value) = buildParamsProp.set(value)
-    override val configParamsInitialOverlay: CMakeParams?
+}
+
+open class CMakeConfigurationDelegatedWithOverlay<T : CMakeConfiguration>(
+    override val delegate: T,
+    private val buildParamsInitialOverlayProvider: () -> CMakeParams? = { null },
+    private val configParamsInitialOverlayProvider: () -> CMakeParams? = { null }
+) : CMakeConfiguration, Delegated<T> {
+    override val executable: String?
+        get() = delegate.executable
+    override val workingFolder: File?
+        get() = delegate.workingFolder
+    override val configParams: CMakeParams?
+        get() = configParamsInitialOverlay.orEmpty + delegate.configParams.orEmpty
+    override val buildParams: CMakeParams?
+        get() = buildParamsInitialOverlay.orEmpty + delegate.buildParams.orEmpty
+    open val configParamsInitialOverlay: CMakeParams?
         get() = configParamsInitialOverlayProvider()
-    override val buildParamsInitialOverlay: CMakeParams?
+    open val buildParamsInitialOverlay: CMakeParams?
         get() = buildParamsInitialOverlayProvider()
 }
+
+fun <T : CMakeConfiguration> T.delegateWith(
+    buildParamsInitialOverlayProvider: () -> CMakeParams? = { null },
+    configParamsInitialOverlayProvider: () -> CMakeParams? = { null },
+): CMakeConfiguration = CMakeConfigurationDelegatedWithOverlay(
+    this,
+    buildParamsInitialOverlayProvider,
+    configParamsInitialOverlayProvider,
+)
+
+open class ModifiableCMakeConfigurationDelegatedWithOverlay<T : ModifiableCMakeConfiguration<C, B>, C : ModifiableCMakeGeneralParams, B : ModifiableCMakeBuildParams>(
+    override val delegate: T,
+    buildParamsInitialOverlayProvider: () -> CMakeParams? = { null },
+    configParamsInitialOverlayProvider: () -> CMakeParams? = { null },
+) : CMakeConfigurationDelegatedWithOverlay<T>(
+    delegate,
+    buildParamsInitialOverlayProvider,
+    configParamsInitialOverlayProvider,
+), ModifiableCMakeConfiguration<C, B> {
+    override var configParams: CMakeParams?
+        get() = super.configParams
+        set(value) {
+            delegate.configParams = value
+        }
+    override var buildParams: CMakeParams?
+        get() = super.buildParams
+        set(value) {
+            delegate.buildParams = value
+        }
+    override var executable: String?
+        get() = delegate.executable
+        set(value) {
+            delegate.executable = value
+        }
+    override var workingFolder: File?
+        get() = delegate.workingFolder
+        set(value) {
+            delegate.workingFolder = value
+        }
+
+    override val cleanConfigParamsFactory: Factory<C>
+        get() = delegate.cleanConfigParamsFactory
+    override val cleanBuildParamsFactory: Factory<B>
+        get() = delegate.cleanBuildParamsFactory
+}
+
+fun <T : ModifiableCMakeConfiguration<C, B>, C : ModifiableCMakeGeneralParams, B : ModifiableCMakeBuildParams> T.delegateWith(
+    buildParamsInitialOverlayProvider: () -> CMakeParams? = { null },
+    configParamsInitialOverlayProvider: () -> CMakeParams? = { null },
+): ModifiableCMakeConfiguration<C, B> = ModifiableCMakeConfigurationDelegatedWithOverlay(
+    this,
+    buildParamsInitialOverlayProvider,
+    configParamsInitialOverlayProvider,
+)
+
+open class CMakeConfigurationWithOverlay<C : ModifiableCMakeGeneralParams, B : ModifiableCMakeBuildParams>(
+    project: Project,
+    buildParamsInitialOverlayProvider: () -> CMakeParams? = { null },
+    configParamsInitialOverlayProvider: () -> CMakeParams? = { null },
+    cleanConfigParamsFactory: Factory<C> = Factory {
+        error("cleanConfigParamsFactory is not set")
+    },
+    cleanBuildParamsFactory: Factory<B> = Factory {
+        error("cleanBuildParamsFactory is not set")
+    },
+) : ModifiableCMakeConfigurationDelegatedWithOverlay<ModifiableCMakeConfiguration<C, B>, C, B>(
+    object : AbstractCMakeConfiguration<C, B>(project) {
+        override val cleanConfigParamsFactory: Factory<C> = cleanConfigParamsFactory
+        override val cleanBuildParamsFactory: Factory<B> = cleanBuildParamsFactory
+    },
+    buildParamsInitialOverlayProvider,
+    configParamsInitialOverlayProvider
+)
 
 interface CMakeExecutionConfiguration {
     val executable: String?

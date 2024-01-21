@@ -18,6 +18,7 @@ package io.github.isning.gradle.plugins.cmake
 
 import io.github.isning.gradle.plugins.cmake.params.*
 import io.github.isning.gradle.plugins.cmake.utils.delegateItemsTo
+import io.github.isning.gradle.plugins.cmake.utils.runIfIs
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectCollection
 import org.gradle.api.NamedDomainObjectContainer
@@ -35,11 +36,11 @@ interface ModifiableCMakeProject : CMakeProject,
 }
 
 class CMakeProjectImpl(
-    project: Project, val projectName: String,
+    val project: Project, val projectName: String,
     buildParamsInitialOverlayProvider: () -> CMakeParams?,
     configParamsInitialOverlayProvider: () -> CMakeParams?
 ) : Named,
-    AbstractCMakeConfiguration<ModifiableCMakeGeneralParams, ModifiableCMakeBuildParams>
+    CMakeConfigurationWithOverlay<ModifiableCMakeGeneralParams, ModifiableCMakeBuildParams>
         (project, buildParamsInitialOverlayProvider, configParamsInitialOverlayProvider),
     TasksRegister, CMakeTargetContainerWithFactoriesRegisterer, ModifiableCMakeProject {
 
@@ -80,16 +81,16 @@ class CMakeProjectImpl(
         get() = ModifiableCMakeGeneralParamsImpl {
             sourceDir = project.layout.projectDirectory.dir("src/main/cpp").asFile.absolutePath
             buildDir = project.layout.buildDirectory.dir("cmake").get().asFile.absolutePath
-        } + super<AbstractCMakeConfiguration>.configParamsInitialOverlay.orEmpty
+        } + super.configParamsInitialOverlay.orEmpty
 
     init {
         registerFactories(project)
     }
 
     override fun registerTasks(inheritedConfigurations: List<CMakeConfiguration>, inheritedNames: List<String>) {
-        this.rawTargets.forEach {
-            if (it is TasksRegister)
-                it.registerTasks((inheritedConfigurations + this).map { configuration ->
+        rawTargets.forEach { target ->
+            target.runIfIs<TasksRegister, _, _> { origin ->
+                registerTasks((inheritedConfigurations + origin).map { configuration ->
                     object : CMakeConfiguration {
                         override val executable: String? = configuration.executable
                         override val workingFolder: File? = configuration.workingFolder
@@ -100,6 +101,7 @@ class CMakeProjectImpl(
                     }
 
                 }, inheritedNames + projectName)
+            }
         }
     }
 }
