@@ -67,6 +67,19 @@ interface CMakeEntriesValueFilteredEntriesToBeRemovedRecorded : CMakeEntriesEntr
 interface CMakeEntriesEntriesToBeRemovedRecorded : CMakeCacheEntries, EntriesToBeRemovedRecorded
 interface EntriesToBeRemovedRecorded : ElementsToBeRemovedRecorded<String>
 
+class CombinedCMakeEntries(val entries: List<CMakeCacheEntries>) : CMakeEntriesValueFilteredEntriesToBeRemovedRecorded {
+    constructor(vararg entries: CMakeCacheEntries) : this(entries.toList())
+
+    val combined
+        get() = entries.fold(emptyCMakeEntries()) { acc, param -> acc.internalPlus(param) }
+
+    override val value: Map<String, String>
+        get() = combined.value
+
+    override val explicitlyRemovedElements: Set<String>
+        get() = combined.explicitlyRemovedElements
+}
+
 /**
  * This converts the CMake entries to CMake parameters.
  * It returns a CMakeParams object where each entry is represented as a string in the format "-Dkey=value".
@@ -80,6 +93,9 @@ val CMakeCacheEntries.asCMakeParams: CMakeParams
 operator fun <T : CMakeCacheEntries> T.invoke(configure: T.() -> Unit): Unit = configure()
 
 operator fun CMakeCacheEntries.plus(params: CMakeCacheEntries): CMakeCacheEntries =
+    CombinedCMakeEntries(this, params)
+
+fun CMakeCacheEntries.internalPlus(params: CMakeCacheEntries): CMakeCacheEntries =
     CustomExplicitlyRemovedEntriesRecordedCMakeEntries(
         filteredValue.filterOutBy(params.explicitlyRemovedElements) + params.filteredValue,
         explicitlyRemovedElements + params.explicitlyRemovedElements
