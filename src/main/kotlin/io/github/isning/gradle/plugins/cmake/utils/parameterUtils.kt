@@ -28,8 +28,8 @@ fun List<String>.findParameterValue(startWith: String): String? =
 
 
 fun String.splitByParameterPattern(): List<String> =
-    splitBy("""('[^'\\]*(?:\\.[^'\\]*)*')|("[^"\\]*[?:\\.[^"\\]*]*")|(\S+)""".toRegex()).unWarpQuotes()
-        .flatBy("""(^-\w)(.*)|(--[\S]+)|(^[^-]\S+)""".toRegex()).unWarpQuotes()
+    splitBy("""('[^'\\]*(?:\\.[^'\\]*)*')|("[^"\\]*(?:\\.[^"\\]*)*")|(\S+)""".toRegex())
+        .flatBy("""(^-\w)\s*(.*${'$'})|(^--\w+${'$'})|(^[^-].*${'$'})""".toRegex()).unWarpQuotes()
 
 fun String.splitBy(regex: Regex): List<String> =
     regex.findAll(this).flatMap { it.groupValues.drop(1).noEmpty() }.toList()
