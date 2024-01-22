@@ -29,7 +29,20 @@ interface CMakeParamsValueFilteredParamsToBeRemovedRecorded : CMakeParamsParamsT
 interface CMakeParamsParamsToBeRemovedRecorded : CMakeParams, ParamsToBeRemovedRecorded
 interface ParamsToBeRemovedRecorded : ElementsToBeRemovedRecorded<String>
 
-operator fun CMakeParams.plus(params: CMakeParams): CMakeParamsValueFilteredParamsToBeRemovedRecorded =
+class CombinedCMakeParams(val params: List<CMakeParams>) : CMakeParamsValueFilteredParamsToBeRemovedRecorded {
+    constructor(vararg params: CMakeParams) : this(params.toList())
+
+    val combined
+        get() = params.fold(emptyCMakeParams()) { acc, param -> acc.internalPlus(param) }
+    override val value: List<String>
+        get() = combined.value
+    override val explicitlyRemovedElements: Set<String>
+        get() = combined.explicitlyRemovedElements
+}
+
+operator fun CMakeParams.plus(params: CMakeParams) = CombinedCMakeParams(this, params)
+
+fun CMakeParams.internalPlus(params: CMakeParams): CMakeParamsValueFilteredParamsToBeRemovedRecorded =
     CustomExplicitlyRemovedParamsRecordedCMakeParams(
         filteredValue.filterOutBy(params.explicitlyRemovedElements) + params.filteredValue,
         explicitlyRemovedElements + params.explicitlyRemovedElements
