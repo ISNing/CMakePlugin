@@ -94,3 +94,5 @@ val CMakeCacheEntries.filteredValue: Map<String, String>
     else value.filterOutBy(explicitlyRemovedElements)
 
 fun Map<String, String>.filterOutBy(keys: Iterable<String>): Map<String, String> = filterNot { keys.contains(it.key) }
+
+fun emptyCMakeEntries(): CMakeCacheEntries = CustomCMakeCacheEntries(emptyMap())
