@@ -16,6 +16,7 @@
 
 package io.github.isning.gradle.plugins.cmake.targets
 
+import io.github.isning.gradle.plugins.cmake.CMakeConfiguration
 import io.github.isning.gradle.plugins.cmake.CMakeTargetImpl
 import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeBuildParams
 import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeBuildParamsImpl
@@ -24,8 +25,18 @@ import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableAndroidPa
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableAndroidParamsImpl
 import org.gradle.api.Project
 
-class AndroidTarget(project: Project, name: String) :
-    CMakeTargetImpl<ModifiableAndroidParams<ModifiableAndroidEntries>, ModifiableCMakeBuildParams>(project, name, {
+class AndroidTarget(
+    project: Project,
+    name: String,
+    inheritedParents: List<CMakeConfiguration>,
+    inheritedNames: List<String>
+) :
+    CMakeTargetImpl<ModifiableAndroidParams<ModifiableAndroidEntries>, ModifiableCMakeBuildParams>(
+        project,
+        name,
+        inheritedParents,
+        inheritedNames,
+        {
         ModifiableAndroidParamsImpl()
     }, {
         ModifiableCMakeBuildParamsImpl()

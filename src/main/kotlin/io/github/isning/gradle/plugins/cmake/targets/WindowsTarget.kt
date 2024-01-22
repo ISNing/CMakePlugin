@@ -17,6 +17,7 @@
 package io.github.isning.gradle.plugins.cmake.targets
 
 import io.github.isning.gradle.plugins.cmake.AbstractCMakeTarget
+import io.github.isning.gradle.plugins.cmake.CMakeConfiguration
 import io.github.isning.gradle.plugins.cmake.CMakeTargetImpl
 import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeBuildParams
 import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeBuildParamsImpl
@@ -28,16 +29,28 @@ import org.gradle.internal.Factory
 
 interface WindowsTarget
 
-class WindowsTargetImpl(project: Project, name: String) :
-    CMakeTargetImpl<ModifiableWindowsParams<ModifiableWindowsEntries>, ModifiableCMakeBuildParams>(project, name, {
-        ModifiableWindowsParamsImpl()
-    }, {
-        ModifiableCMakeBuildParamsImpl()
-    }), WindowsTarget
+class WindowsTargetImpl(
+    project: Project,
+    name: String,
+    inheritedParents: List<CMakeConfiguration>,
+    inheritedNames: List<String>
+) :
+    CMakeTargetImpl<ModifiableWindowsParams<ModifiableWindowsEntries>, ModifiableCMakeBuildParams>(project, name,
+        inheritedParents, inheritedNames,
+        {
+            ModifiableWindowsParamsImpl()
+        }, {
+            ModifiableCMakeBuildParamsImpl()
+        }), WindowsTarget
 
 
-abstract class AbstractWindowsTarget<T : ModifiableWindowsParams<*>>(project: Project, name: String) :
-    AbstractCMakeTarget<T, ModifiableCMakeBuildParams>(project, name) {
+abstract class AbstractWindowsTarget<T : ModifiableWindowsParams<*>>(
+    project: Project,
+    name: String,
+    inheritedParents: List<CMakeConfiguration>,
+    inheritedNames: List<String>
+) :
+    AbstractCMakeTarget<T, ModifiableCMakeBuildParams>(project, name, inheritedParents, inheritedNames), WindowsTarget {
     override val cleanBuildParamsFactory: Factory<ModifiableCMakeBuildParams> = Factory {
         ModifiableCMakeBuildParamsImpl()
     }

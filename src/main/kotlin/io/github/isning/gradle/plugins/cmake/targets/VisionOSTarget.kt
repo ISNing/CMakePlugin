@@ -16,14 +16,25 @@
 
 package io.github.isning.gradle.plugins.cmake.targets
 
+import io.github.isning.gradle.plugins.cmake.CMakeConfiguration
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableVisionOSEntries
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableVisionOSParams
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableVisionOSParamsImpl
 import org.gradle.api.Project
 import org.gradle.internal.Factory
 
-class VisionOSTarget(project: Project, name: String) :
-    AbstractAppleTarget<ModifiableVisionOSParams<ModifiableVisionOSEntries>>(project, name) {
+class VisionOSTarget(
+    project: Project,
+    name: String,
+    inheritedParents: List<CMakeConfiguration>,
+    inheritedNames: List<String>
+) :
+    AbstractAppleTarget<ModifiableVisionOSParams<ModifiableVisionOSEntries>>(
+        project,
+        name,
+        inheritedParents,
+        inheritedNames
+    ) {
     override val cleanConfigParamsFactory: Factory<ModifiableVisionOSParams<ModifiableVisionOSEntries>> = Factory {
         ModifiableVisionOSParamsImpl()
     }

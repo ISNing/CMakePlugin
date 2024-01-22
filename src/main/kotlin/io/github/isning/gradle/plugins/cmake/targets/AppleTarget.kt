@@ -17,6 +17,7 @@
 package io.github.isning.gradle.plugins.cmake.targets
 
 import io.github.isning.gradle.plugins.cmake.AbstractCMakeTarget
+import io.github.isning.gradle.plugins.cmake.CMakeConfiguration
 import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeBuildParams
 import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeBuildParamsImpl
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableAppleParams
@@ -25,8 +26,13 @@ import org.gradle.internal.Factory
 
 interface AppleTarget
 
-abstract class AbstractAppleTarget<T : ModifiableAppleParams<*>>(project: Project, name: String) :
-    AbstractCMakeTarget<T, ModifiableCMakeBuildParams>(project, name), AppleTarget {
+abstract class AbstractAppleTarget<T : ModifiableAppleParams<*>>(
+    project: Project,
+    name: String,
+    inheritedParents: List<CMakeConfiguration>,
+    inheritedNames: List<String>
+) :
+    AbstractCMakeTarget<T, ModifiableCMakeBuildParams>(project, name, inheritedParents, inheritedNames), AppleTarget {
     override val cleanBuildParamsFactory: Factory<ModifiableCMakeBuildParams> = Factory {
         ModifiableCMakeBuildParamsImpl()
     }

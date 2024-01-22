@@ -17,18 +17,19 @@
  */
 package io.github.isning.gradle.plugins.cmake
 
-import io.github.isning.gradle.plugins.cmake.params.*
+import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeBuildParams
+import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeBuildParamsImpl
+import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeGeneralParams
+import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeGeneralParamsImpl
 import io.github.isning.gradle.plugins.cmake.utils.delegateItemsTo
-import io.github.isning.gradle.plugins.cmake.utils.runIfIs
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.internal.Factory
-import java.io.File
 
 const val EXTENSION_NAME_CMAKE = "cmake"
 
 open class CMakePluginExtension(project: Project) :
-    CMakeConfigurationWithOverlay<ModifiableCMakeGeneralParams, ModifiableCMakeBuildParams>(project), TasksRegister {
+    CMakeConfigurationWithOverlay<ModifiableCMakeGeneralParams, ModifiableCMakeBuildParams>(project) {
 
     override val cleanConfigParamsFactory: Factory<ModifiableCMakeGeneralParams> = Factory {
         ModifiableCMakeGeneralParamsImpl()
@@ -42,29 +43,12 @@ open class CMakePluginExtension(project: Project) :
 
     val projects: NamedDomainObjectContainer<CMakeProjectImpl> =
         project.container(CMakeProjectImpl::class.java) { name: String ->
-            CMakeProjectImpl(project, name)
+            CMakeProjectImpl(project, name, listOf(this), emptyList())
         }.also { it.delegateItemsTo(rawProjects) }
 
     init {
         executable = "cmake"
         workingFolder = project.layout.buildDirectory.dir("cmake").get().asFile
-    }
-
-    override fun registerTasks(inheritedConfigurations: List<CMakeConfiguration>, inheritedNames: List<String>) {
-        rawProjects.forEach { project ->
-            project.runIfIs<TasksRegister, _, _> { origin ->
-                registerTasks((inheritedConfigurations + origin).map { configuration ->
-                    object : CMakeConfiguration {
-                        override val executable: String? = configuration.executable
-                        override val workingFolder: File? = configuration.workingFolder
-                        override val configParams: CMakeParams? = configuration.configParams
-                            ?.replaceWith("{gradleProjectName}", project.name)
-                        override val buildParams: CMakeParams? = configuration.buildParams
-                            ?.replaceWith("{gradleProjectName}", project.name)
-                    }
-                }, emptyList())
-            }
-        }
     }
 }
 

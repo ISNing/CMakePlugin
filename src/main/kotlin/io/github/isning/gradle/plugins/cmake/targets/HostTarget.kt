@@ -16,6 +16,7 @@
 
 package io.github.isning.gradle.plugins.cmake.targets
 
+import io.github.isning.gradle.plugins.cmake.CMakeConfiguration
 import io.github.isning.gradle.plugins.cmake.CMakeTargetImpl
 import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeBuildParams
 import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeBuildParamsImpl
@@ -24,8 +25,18 @@ import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableHostParam
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableHostParamsImpl
 import org.gradle.api.Project
 
-class HostTarget(project: Project, name: String) :
-    CMakeTargetImpl<ModifiableHostParams<ModifiableHostEntries>, ModifiableCMakeBuildParams>(project, name, {
+class HostTarget(
+    project: Project,
+    name: String,
+    inheritedParents: List<CMakeConfiguration>,
+    inheritedNames: List<String>
+) :
+    CMakeTargetImpl<ModifiableHostParams<ModifiableHostEntries>, ModifiableCMakeBuildParams>(
+        project,
+        name,
+        inheritedParents,
+        inheritedNames,
+        {
         ModifiableHostParamsImpl()
     }, {
         ModifiableCMakeBuildParamsImpl()

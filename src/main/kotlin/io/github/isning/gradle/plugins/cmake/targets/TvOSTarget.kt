@@ -16,14 +16,20 @@
 
 package io.github.isning.gradle.plugins.cmake.targets
 
+import io.github.isning.gradle.plugins.cmake.CMakeConfiguration
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableTvOSEntries
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableTvOSParams
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableTvOSParamsImpl
 import org.gradle.api.Project
 import org.gradle.internal.Factory
 
-class TvOSTarget(project: Project, name: String) :
-    AbstractAppleTarget<ModifiableTvOSParams<ModifiableTvOSEntries>>(project, name) {
+class TvOSTarget(
+    project: Project,
+    name: String,
+    inheritedParents: List<CMakeConfiguration>,
+    inheritedNames: List<String>
+) :
+    AbstractAppleTarget<ModifiableTvOSParams<ModifiableTvOSEntries>>(project, name, inheritedParents, inheritedNames) {
     override val cleanConfigParamsFactory: Factory<ModifiableTvOSParams<ModifiableTvOSEntries>> = Factory {
         ModifiableTvOSParamsImpl()
     }

@@ -27,170 +27,345 @@ fun <T : CMakeTarget> (Pair<String, (String) -> T?>).factory(configure: T.() -> 
 }
 
 interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWithPresetFunctions {
-    fun registerFactories(project: Project) {
-        factories.add(("host" to { name: String -> HostTarget(project, name) }).factory { })
-        factories.add(("androidX64" to { name: String -> AndroidTarget(project, name) }).factory {
+    fun registerFactories(project: Project, inheritedParents: List<CMakeConfiguration>, inheritedNames: List<String>) {
+        factories.add(("host" to { name: String ->
+            HostTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory { })
+        factories.add(("androidX64" to { name: String ->
+            AndroidTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     archAbi = "x86_64"
                 }
             }
         })
-        factories.add(("androidX86" to { name: String -> AndroidTarget(project, name) }).factory {
+        factories.add(("androidX86" to { name: String ->
+            AndroidTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     archAbi = "x86"
                 }
             }
         })
-        factories.add(("androidArm32" to { name: String -> AndroidTarget(project, name) }).factory {
+        factories.add(("androidArm32" to { name: String ->
+            AndroidTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     archAbi = "armeabi-v7a"
                 }
             }
         })
-        factories.add(("androidArm64" to { name: String -> AndroidTarget(project, name) }).factory {
+        factories.add(("androidArm64" to { name: String ->
+            AndroidTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     archAbi = "arm64-v8a"
                 }
             }
         })
-        factories.add(("iosArm32" to { name: String -> IOSTarget(project, name) }).factory {
+        factories.add(("iosArm32" to { name: String ->
+            IOSTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     osxArchitectures = "armv7"
                 }
             }
         })
-        factories.add(("iosArm64" to { name: String -> IOSTarget(project, name) }).factory {
+        factories.add(("iosArm64" to { name: String ->
+            IOSTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     osxArchitectures = "arm64"
                 }
             }
         })
-        factories.add(("iosX64" to { name: String -> IOSTarget(project, name) }).factory {
+        factories.add(("iosX64" to { name: String ->
+            IOSTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     osxArchitectures = "x86_64"
                 }
             }
         })
-        factories.add(("watchosArm32" to { name: String -> WatchOSTarget(project, name) }).factory {
+        factories.add(("watchosArm32" to { name: String ->
+            WatchOSTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     osxArchitectures = "armv7k"
                 }
             }
         })
-        factories.add(("watchosArm64" to { name: String -> WatchOSTarget(project, name) }).factory {
+        factories.add(("watchosArm64" to { name: String ->
+            WatchOSTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     osxArchitectures = "arm64_32"
                 }
             }
         })
-        factories.add(("watchosX86" to { name: String -> WatchOSTarget(project, name) }).factory {
+        factories.add(("watchosX86" to { name: String ->
+            WatchOSTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     osxArchitectures = "i386"
                 }
             }
         })
-        factories.add(("watchosX64" to { name: String -> WatchOSTarget(project, name) }).factory {
+        factories.add(("watchosX64" to { name: String ->
+            WatchOSTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     osxArchitectures = "x86_64"
                 }
             }
         })
-        factories.add(("tvosArm64" to { name: String -> TvOSTarget(project, name) }).factory {
+        factories.add(("tvosArm64" to { name: String ->
+            TvOSTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     osxArchitectures = "arm64"
                 }
             }
         })
-        factories.add(("tvosX64" to { name: String -> TvOSTarget(project, name) }).factory {
+        factories.add(("tvosX64" to { name: String ->
+            TvOSTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     osxArchitectures = "x86_64"
                 }
             }
         })
-        factories.add(("linuxX64" to { name: String -> LinuxTarget(project, name) }).factory {
+        factories.add(("linuxX64" to { name: String ->
+            LinuxTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     systemProcessor = "x86_64"
                 }
             }
         })
-        factories.add(("msvcX86" to { name: String -> MSVCTarget(project, name) }).factory {
+        factories.add(("msvcX86" to { name: String ->
+            MSVCTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     systemProcessor = "x86"
                 }
             }
         })
-        factories.add(("msvcX64" to { name: String -> MSVCTarget(project, name) }).factory {
+        factories.add(("msvcX64" to { name: String ->
+            MSVCTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     systemProcessor = "x86_64"
                 }
             }
         })
-        factories.add(("mingwX86" to { name: String -> MinGWTarget(project, name) }).factory {
+        factories.add(("mingwX86" to { name: String ->
+            MinGWTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     systemProcessor = "i686"
                 }
             }
         })
-        factories.add(("mingwX64" to { name: String -> MinGWTarget(project, name) }).factory {
+        factories.add(("mingwX64" to { name: String ->
+            MinGWTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     systemProcessor = "x86_64"
                 }
             }
         })
-        factories.add(("macosX64" to { name: String -> DarwinTarget(project, name) }).factory {
+        factories.add(("macosX64" to { name: String ->
+            DarwinTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     systemProcessor = "x86_64"
                 }
             }
         })
-        factories.add(("macosArm64" to { name: String -> DarwinTarget(project, name) }).factory {
+        factories.add(("macosArm64" to { name: String ->
+            DarwinTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     systemProcessor = "arm64"
                 }
             }
         })
-        factories.add(("linuxArm64" to { name: String -> LinuxTarget(project, name) }).factory {
+        factories.add(("linuxArm64" to { name: String ->
+            LinuxTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     systemProcessor = "aarch64"
                 }
             }
         })
-        factories.add(("linuxArm32Hfp" to { name: String -> LinuxTarget(project, name) }).factory {
+        factories.add(("linuxArm32Hfp" to { name: String ->
+            LinuxTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     systemProcessor = "armv7hf"
                 }
             }
         })
-        factories.add(("linuxMips32" to { name: String -> LinuxTarget(project, name) }).factory {
+        factories.add(("linuxMips32" to { name: String ->
+            LinuxTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     systemProcessor = "mips"
                 }
             }
         })
-        factories.add(("linuxMipsel32" to { name: String -> LinuxTarget(project, name) }).factory {
+        factories.add(("linuxMipsel32" to { name: String ->
+            LinuxTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
             configParams {
                 entries {
                     systemProcessor = "mipsel"

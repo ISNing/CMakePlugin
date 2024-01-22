@@ -16,14 +16,25 @@
 
 package io.github.isning.gradle.plugins.cmake.targets
 
+import io.github.isning.gradle.plugins.cmake.CMakeConfiguration
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableDarwinEntries
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableDarwinParams
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableDarwinParamsImpl
 import org.gradle.api.Project
 import org.gradle.internal.Factory
 
-class DarwinTarget(project: Project, name: String) :
-    AbstractAppleTarget<ModifiableDarwinParams<ModifiableDarwinEntries>>(project, name) {
+class DarwinTarget(
+    project: Project,
+    name: String,
+    inheritedParents: List<CMakeConfiguration>,
+    inheritedNames: List<String>
+) :
+    AbstractAppleTarget<ModifiableDarwinParams<ModifiableDarwinEntries>>(
+        project,
+        name,
+        inheritedParents,
+        inheritedNames
+    ) {
     override val cleanConfigParamsFactory: Factory<ModifiableDarwinParams<ModifiableDarwinEntries>> = Factory {
         ModifiableDarwinParamsImpl()
     }

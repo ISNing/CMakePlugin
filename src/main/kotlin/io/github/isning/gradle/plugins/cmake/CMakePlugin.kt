@@ -134,7 +134,6 @@ class CMakePlugin : Plugin<Project> {
 
         project.afterEvaluate {
             val tasks = project.tasks
-            project.cmakeExtension.registerTasks(listOf(), emptyList())
 
             tasks.named("clean").configure { dependsOn("cmakeClean") }
             tasks.named("build").configure {

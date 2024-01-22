@@ -16,14 +16,25 @@
 
 package io.github.isning.gradle.plugins.cmake.targets
 
+import io.github.isning.gradle.plugins.cmake.CMakeConfiguration
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableMinGWEntries
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableMinGWParams
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableMinGWParamsImpl
 import org.gradle.api.Project
 import org.gradle.internal.Factory
 
-class MinGWTarget(project: Project, name: String) :
-    AbstractWindowsTarget<ModifiableMinGWParams<ModifiableMinGWEntries>>(project, name) {
+class MinGWTarget(
+    project: Project,
+    name: String,
+    inheritedParents: List<CMakeConfiguration>,
+    inheritedNames: List<String>
+) :
+    AbstractWindowsTarget<ModifiableMinGWParams<ModifiableMinGWEntries>>(
+        project,
+        name,
+        inheritedParents,
+        inheritedNames
+    ) {
     override val cleanConfigParamsFactory: Factory<ModifiableMinGWParams<ModifiableMinGWEntries>> = Factory {
         ModifiableMinGWParamsImpl()
     }

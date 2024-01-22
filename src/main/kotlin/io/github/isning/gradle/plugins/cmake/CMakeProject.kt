@@ -18,13 +18,11 @@ package io.github.isning.gradle.plugins.cmake
 
 import io.github.isning.gradle.plugins.cmake.params.*
 import io.github.isning.gradle.plugins.cmake.utils.delegateItemsTo
-import io.github.isning.gradle.plugins.cmake.utils.runIfIs
 import org.gradle.api.Named
 import org.gradle.api.NamedDomainObjectCollection
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.internal.Factory
-import java.io.File
 
 interface CMakeProject : Named, CMakeConfiguration {
     val rawTargets: Set<CMakeTarget>
@@ -37,19 +35,27 @@ interface ModifiableCMakeProject : CMakeProject,
 
 class CMakeProjectImpl(
     val project: Project, val projectName: String,
+    val inheritedParents: List<CMakeConfiguration>, val inheritedNames: List<String>,
     buildParamsInitialOverlayProvider: () -> CMakeParams?,
     configParamsInitialOverlayProvider: () -> CMakeParams?
 ) : Named,
     CMakeConfigurationWithOverlay<ModifiableCMakeGeneralParams, ModifiableCMakeBuildParams>
         (project, buildParamsInitialOverlayProvider, configParamsInitialOverlayProvider),
-    TasksRegister, CMakeTargetContainerWithFactoriesRegisterer, ModifiableCMakeProject {
+    CMakeTargetContainerWithFactoriesRegisterer, ModifiableCMakeProject {
 
     constructor(
         project: Project,
         projectName: String,
+        inheritedParents: List<CMakeConfiguration>, inheritedNames: List<String>,
         buildParamsInitialOverlay: CMakeParams? = null,
         configParamsInitialOverlay: CMakeParams? = null
-    ) : this(project, projectName, { buildParamsInitialOverlay }, { configParamsInitialOverlay })
+    ) : this(
+        project,
+        projectName,
+        inheritedParents,
+        inheritedNames,
+        { buildParamsInitialOverlay },
+        { configParamsInitialOverlay })
 
     override fun getName(): String = projectName
 
@@ -69,11 +75,12 @@ class CMakeProjectImpl(
     @Suppress("UNCHECKED_CAST")
     val targets: NamedDomainObjectContainer<CMakeTargetImpl<ModifiableCMakeGeneralParamsImpl, ModifiableCMakeBuildParamsImpl>> =
         project.container(CMakeTarget::class.java) { name: String ->
-            CMakeTargetImpl(project, name, {
-                ModifiableCMakeGeneralParamsImpl()
-            }, {
-                ModifiableCMakeBuildParamsImpl()
-            })
+            CMakeTargetImpl(project, name, inheritedParents + this, inheritedNames + projectName,
+                {
+                    ModifiableCMakeGeneralParamsImpl()
+                }, {
+                    ModifiableCMakeBuildParamsImpl()
+                })
         }.also { it.delegateItemsTo(rawTargets) }
                 as NamedDomainObjectContainer<CMakeTargetImpl<ModifiableCMakeGeneralParamsImpl, ModifiableCMakeBuildParamsImpl>>
 
@@ -84,24 +91,6 @@ class CMakeProjectImpl(
         } + super.configParamsInitialOverlay.orEmpty
 
     init {
-        registerFactories(project)
-    }
-
-    override fun registerTasks(inheritedConfigurations: List<CMakeConfiguration>, inheritedNames: List<String>) {
-        rawTargets.forEach { target ->
-            target.runIfIs<TasksRegister, _, _> { origin ->
-                registerTasks((inheritedConfigurations + origin).map { configuration ->
-                    object : CMakeConfiguration {
-                        override val executable: String? = configuration.executable
-                        override val workingFolder: File? = configuration.workingFolder
-                        override val configParams: CMakeParams? = configuration.configParams
-                            ?.replaceWith("{projectName}", projectName)
-                        override val buildParams: CMakeParams? = configuration.buildParams
-                            ?.replaceWith("{projectName}", projectName)
-                    }
-
-                }, inheritedNames + projectName)
-            }
-        }
+        registerFactories(project, inheritedParents + this, inheritedNames + projectName)
     }
 }

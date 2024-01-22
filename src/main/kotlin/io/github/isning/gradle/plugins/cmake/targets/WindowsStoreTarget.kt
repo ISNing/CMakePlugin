@@ -16,6 +16,7 @@
 
 package io.github.isning.gradle.plugins.cmake.targets
 
+import io.github.isning.gradle.plugins.cmake.CMakeConfiguration
 import io.github.isning.gradle.plugins.cmake.CMakeTargetImpl
 import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeBuildParams
 import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeBuildParamsImpl
@@ -24,9 +25,14 @@ import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableWindowsSt
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableWindowsStoreParamsImpl
 import org.gradle.api.Project
 
-class WindowsStoreTarget(project: Project, name: String) :
+class WindowsStoreTarget(
+    project: Project,
+    name: String,
+    inheritedParents: List<CMakeConfiguration>,
+    inheritedNames: List<String>
+) :
     CMakeTargetImpl<ModifiableWindowsStoreParams<ModifiableWindowsStoreEntries>,
-            ModifiableCMakeBuildParams>(project, name, {
+            ModifiableCMakeBuildParams>(project, name, inheritedParents, inheritedNames, {
         ModifiableWindowsStoreParamsImpl()
     }, {
         ModifiableCMakeBuildParamsImpl()

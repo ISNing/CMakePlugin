@@ -18,57 +18,55 @@
  */
 package io.github.isning.gradle.plugins.cmake
 
-import io.github.isning.gradle.plugins.cmake.params.CMakeParams
-import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeBuildParams
-import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeGeneralParams
-import io.github.isning.gradle.plugins.cmake.params.replaceWith
+import io.github.isning.gradle.plugins.cmake.params.*
 import io.github.isning.gradle.plugins.cmake.utils.upperCamelCaseName
 import org.gradle.api.Named
 import org.gradle.api.Project
 import org.gradle.internal.Factory
 import java.io.File
 
-interface CMakeTarget : Named, CMakeConfiguration
+interface CMakeTarget : Named, CMakeConfiguration {
+    val targetName: String
+    val inheritedParents: List<CMakeConfiguration>
+    val inheritedNames: List<String>
+    val names: List<String>
+        get() = inheritedNames + name
+    val configurations: List<CMakeConfiguration>
+        get() = inheritedParents + this
+    val finalConfiguration: CMakeConfiguration
+    override fun getName(): String = targetName
+}
 
 interface ModifiableCMakeTarget<C : ModifiableCMakeGeneralParams, B : ModifiableCMakeBuildParams> :
     CMakeTarget, ModifiableCMakeConfiguration<C, B>
 
 operator fun <T : CMakeParams> T.invoke(configure: T.() -> Unit): Unit = configure()
 
-interface CMakeTargetHelper : CMakeTarget, TasksRegister, Named {
+interface CMakeTargetHelper : CMakeTarget {
     val project: Project
-    val targetName: String
-
-    override fun getName(): String = targetName
-
-    override fun registerTasks(inheritedConfigurations: List<CMakeConfiguration>, inheritedNames: List<String>) {
-        val taskNameSuffix = upperCamelCaseName(*(inheritedNames + targetName).toTypedArray())
-        val configureTask = project.tasks.register(
-            TASK_NAME_CMAKE_CONFIGURE + taskNameSuffix, CMakeConfigureTask::class.java
-        ) {
-            configureFrom((inheritedConfigurations + this@CMakeTargetHelper).map {
-                object : CMakeExecutionConfiguration {
-                    override val executable: String? = it.executable
-                    override val workingFolder: File? = it.workingFolder
-                    override val parameters: CMakeParams? = it.configParams
-                        ?.replaceWith("{targetName}", targetName)
+    override val finalConfiguration: CMakeConfiguration
+        get() = object : CMakeConfiguration {
+            override val executable: String?
+                get() = configurations.lastOrNull { it.executable != null }?.executable
+            override val workingFolder: File?
+                get() = configurations.lastOrNull { it.workingFolder != null }?.workingFolder
+            override val configParams: CMakeParams
+                get() = configurations.mapNotNull { it.configParams }.fold(emptyCMakeParams()) { acc, params ->
+                    acc + params
                 }
-            })
-        }.get()
-        val buildTask = project.tasks.register(
-            TASK_NAME_CMAKE_BUILD + taskNameSuffix, CMakeBuildTask::class.java
-        ) {
-            configureFrom((inheritedConfigurations + this@CMakeTargetHelper).map {
-                object : CMakeExecutionConfiguration {
-                    override val executable: String? = it.executable
-                    override val workingFolder: File? = it.workingFolder
-                    override val parameters: CMakeParams? = it.buildParams
-                        ?.replaceWith("{targetName}", targetName)
+                    .replaceWith("{gradleProjectName}", project.name)
+                    .replaceWith("{projectName}", inheritedNames.last())
+                    .replaceWith("{targetName}", targetName)
+            override val buildParams: CMakeParams
+                get() = configurations.mapNotNull { it.buildParams }.fold(emptyCMakeParams()) { acc, params ->
+                    acc + params
                 }
-            })
-        }.get()
-        buildTask.dependsOn(configureTask)
-    }
+                    .replaceWith("{gradleProjectName}", project.name)
+                    .replaceWith("{projectName}", inheritedNames.last())
+                    .replaceWith("{targetName}", targetName)
+        }
+
+
 }
 
 open class CMakeTargetDelegatedWithOverlay<T : CMakeTarget>(
@@ -80,6 +78,15 @@ open class CMakeTargetDelegatedWithOverlay<T : CMakeTarget>(
     buildParamsInitialOverlayProvider,
     configParamsInitialOverlayProvider,
 ) {
+    override val targetName: String
+        get() = delegate.targetName
+    override val inheritedParents: List<CMakeConfiguration>
+        get() = delegate.inheritedParents
+    override val inheritedNames: List<String>
+        get() = delegate.inheritedNames
+    override val finalConfiguration: CMakeConfiguration
+        get() = delegate.finalConfiguration
+
     override fun getName(): String = delegate.name
 }
 
@@ -101,6 +108,15 @@ open class ModifiableCMakeTargetDelegatedWithOverlay<T : ModifiableCMakeTarget<C
     buildParamsInitialOverlayProvider,
     configParamsInitialOverlayProvider,
 ) {
+    override val targetName: String
+        get() = delegate.targetName
+    override val inheritedParents: List<CMakeConfiguration>
+        get() = delegate.inheritedParents
+    override val inheritedNames: List<String>
+        get() = delegate.inheritedNames
+    override val finalConfiguration: CMakeConfiguration
+        get() = delegate.finalConfiguration
+
     override fun getName(): String = delegate.name
 }
 
@@ -114,18 +130,57 @@ fun <T : ModifiableCMakeTarget<C, B>, C : ModifiableCMakeGeneralParams, B : Modi
 )
 
 abstract class AbstractCMakeTarget<C : ModifiableCMakeGeneralParams, B : ModifiableCMakeBuildParams>(
-    override val project: Project,
+    final override val project: Project,
     override val targetName: String,
+    override val inheritedParents: List<CMakeConfiguration>,
+    override val inheritedNames: List<String>,
     buildParamsInitialOverlayProvider: () -> CMakeParams? = { null },
     configParamsInitialOverlayProvider: () -> CMakeParams? = { null },
 ) : CMakeConfigurationWithOverlay<C, B>(project, buildParamsInitialOverlayProvider, configParamsInitialOverlayProvider),
     ModifiableCMakeTarget<C, B>, CMakeTargetHelper {
     abstract override val cleanConfigParamsFactory: Factory<C>
     abstract override val cleanBuildParamsFactory: Factory<B>
+    private val taskNameSuffix
+        get() = upperCamelCaseName(*names.toTypedArray())
+
+    val configureTask: CMakeConfigureTask = project.tasks.register(
+        TASK_NAME_CMAKE_CONFIGURE + taskNameSuffix, CMakeConfigureTask::class.java
+    ) {
+        configureFromProvider {
+            object : CMakeExecutionConfiguration {
+                override val executable: String?
+                    get() = finalConfiguration.executable
+                override val workingFolder: File?
+                    get() = finalConfiguration.workingFolder
+                override val parameters: CMakeParams?
+                    get() = finalConfiguration.configParams
+            }
+        }
+    }.get()
+    val buildTask: CMakeBuildTask = project.tasks.register(
+        TASK_NAME_CMAKE_BUILD + taskNameSuffix, CMakeBuildTask::class.java
+    ) {
+        configureFromProvider {
+            object : CMakeExecutionConfiguration {
+                override val executable: String?
+                    get() = finalConfiguration.executable
+                override val workingFolder: File?
+                    get() = finalConfiguration.workingFolder
+                override val parameters: CMakeParams?
+                    get() = finalConfiguration.buildParams
+
+            }
+        }
+    }.get()
+
+    init {
+        buildTask.dependsOn(configureTask)
+    }
 }
 
 open class CMakeTargetImpl<C : ModifiableCMakeGeneralParams, B : ModifiableCMakeBuildParams>(
     project: Project, name: String,
+    inheritedParents: List<CMakeConfiguration>, inheritedNames: List<String>,
     override val cleanConfigParamsFactory: Factory<C>,
     override val cleanBuildParamsFactory: Factory<B>,
     buildParamsInitialOverlayProvider: () -> CMakeParams?,
@@ -133,11 +188,14 @@ open class CMakeTargetImpl<C : ModifiableCMakeGeneralParams, B : ModifiableCMake
 ) : AbstractCMakeTarget<C, B>(
     project,
     name,
+    inheritedParents, inheritedNames,
     buildParamsInitialOverlayProvider,
     configParamsInitialOverlayProvider,
 ) {
     constructor(
         project: Project, name: String,
+        inheritedParents: List<CMakeConfiguration>,
+        inheritedNames: List<String>,
         cleanConfigParamsFactory: Factory<C>,
         cleanBuildParamsFactory: Factory<B>,
         buildParamsInitialOverlay: CMakeParams? = null,
@@ -145,6 +203,7 @@ open class CMakeTargetImpl<C : ModifiableCMakeGeneralParams, B : ModifiableCMake
     ) : this(
         project,
         name,
+        inheritedParents, inheritedNames,
         cleanConfigParamsFactory,
         cleanBuildParamsFactory,
         { buildParamsInitialOverlay },
