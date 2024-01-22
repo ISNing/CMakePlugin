@@ -173,7 +173,7 @@ open class CMakeConfigurationWithOverlay<C : ModifiableCMakeGeneralParams, B : M
     configParamsInitialOverlayProvider
 )
 
-interface CMakeExecutionConfiguration {
+interface CMakeExecutionConfiguration : Serializable {
     val executable: String?
     val workingFolder: File?
     val parameters: CMakeParams?
