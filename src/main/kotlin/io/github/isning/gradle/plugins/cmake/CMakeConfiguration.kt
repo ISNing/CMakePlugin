@@ -23,6 +23,7 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.internal.Factory
 import java.io.File
+import java.io.Serializable
 
 interface CMakeConfiguration {
     val executable: String?
@@ -49,6 +50,13 @@ interface ModifiableCMakeConfiguration<C : CMakeParams?, B : CMakeParams?> : CMa
             buildParams = buildParams?.let { it + new } ?: new
         }
 }
+
+class CustomCMakeConfiguration(
+    override val executable: String?,
+    override val workingFolder: File?,
+    override val configParams: CMakeParams?,
+    override val buildParams: CMakeParams?,
+) : CMakeConfiguration
 
 abstract class AbstractCMakeConfiguration<C : ModifiableCMakeGeneralParams, B : ModifiableCMakeBuildParams>(
     val project: Project,
@@ -170,3 +178,15 @@ interface CMakeExecutionConfiguration {
     val workingFolder: File?
     val parameters: CMakeParams?
 }
+
+class CustomCMakExecutionConfiguration(
+    override val executable: String? = null,
+    override val workingFolder: File? = null,
+    override val parameters: CMakeParams? = null,
+) : CMakeExecutionConfiguration
+
+operator fun CMakeExecutionConfiguration.plus(other: CMakeExecutionConfiguration) = CustomCMakExecutionConfiguration(
+    executable = other.executable ?: executable,
+    workingFolder = other.workingFolder ?: workingFolder,
+    parameters = other.parameters ?: parameters?.let { other.parameters?.let { o -> o + it } ?: it },
+)
