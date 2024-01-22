@@ -16,17 +16,11 @@
 
 package io.github.isning.gradle.plugins.cmake
 
-import io.github.isning.gradle.plugins.cmake.params.CMakeParams
 import io.github.isning.gradle.plugins.cmake.params.filteredValue
-import io.github.isning.gradle.plugins.cmake.params.plus
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.gradle.kotlin.dsl.assign
 import org.slf4j.Logger
 import java.util.*
 
@@ -38,14 +32,14 @@ abstract class AbstractCMakeExecuteTask : DefaultTask() {
     val neverUpToDateHacking: String
         get() = if (neverUpToDate) Date().time.toString() else ""
 
-    @get:Input
-    val executable: Property<String> = project.objects.property(String::class.java)
-
-    @get:OutputDirectory
-    val workingFolder: DirectoryProperty = project.objects.directoryProperty()
+    @get:Internal
+    var configurations: List<() -> CMakeExecutionConfiguration> = emptyList()
 
     @get:Input
-    open val parameters: Property<CMakeParams> = project.objects.property(CMakeParams::class.java)
+    val configuration: CMakeExecutionConfiguration
+        get() = configurations.fold(CustomCMakExecutionConfiguration()) { acc, provider ->
+            acc + provider()
+        }
 
     @get:Internal
     open var interceptedLogger: Logger = logger
@@ -55,21 +49,25 @@ abstract class AbstractCMakeExecuteTask : DefaultTask() {
         description = "Execute CMake with specified parameters"
     }
 
+    open fun configureFromProvider(configurations: List<() -> CMakeExecutionConfiguration>) {
+        this.configurations += configurations
+    }
+
+    open fun configureFromProvider(configuration: () -> CMakeExecutionConfiguration) {
+        configureFromProvider(listOf(configuration))
+    }
     open fun configureFrom(configurations: List<CMakeExecutionConfiguration>) {
-        for (configuration in configurations)
-            configureFrom(configuration)
+        configureFromProvider(configurations.map { { it } })
     }
 
     open fun configureFrom(configuration: CMakeExecutionConfiguration) {
-        configuration.executable?.let { executable = it }
-        configuration.workingFolder?.let { workingFolder = it }
-        configuration.parameters?.let { parameters = parameters.orNull?.plus(it) ?: it }
+        configureFromProvider(listOf { configuration })
     }
 
     @get:Input
     val cmdLine: List<String>
-        get() = listOf(executable.getOrElse("cmake")).let {
-            parameters.orNull?.filteredValue?.let { parameters -> it + parameters } ?: it
+        get() = listOf(configuration.executable ?: "cmake").let {
+            configuration.parameters?.filteredValue?.let { parameters -> it + parameters } ?: it
         }
 
     open fun doBeforeExecute() = Unit
@@ -78,7 +76,7 @@ abstract class AbstractCMakeExecuteTask : DefaultTask() {
     fun execute() {
         doBeforeExecute()
         val executor = CMakeExecutor(interceptedLogger, name)
-        executor.exec(cmdLine, workingFolder.asFile.get())
+        executor.exec(cmdLine, configuration.workingFolder!!)
         doAfterExecute()
     }
 
@@ -86,8 +84,6 @@ abstract class AbstractCMakeExecuteTask : DefaultTask() {
 }
 
 open class CMakeExecuteTask : AbstractCMakeExecuteTask() {
-
-    override val parameters: Property<CMakeParams> = project.objects.property(CMakeParams::class.java)
 
     private var doBeforeExecute: (() -> Unit)? = null
     private var doAfterExecute: (() -> Unit)? = null
