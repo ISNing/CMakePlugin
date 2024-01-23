@@ -53,7 +53,7 @@ abstract class AbstractModifiablePlatformParams<T : PlatformEntries> : Modifiabl
     abstract override var entries: CMakeCacheEntries?
 
     override val regexMap: Map<String, String>
-        get() = super.regexMap + ("entries" to "-D.*")
+        get() = super.regexMap + ("entries" to "")
 
     override val value: List<String>
         get() = entries?.asCMakeParams?.value?.let { super.value + it } ?: super.value
