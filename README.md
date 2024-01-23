@@ -129,6 +129,13 @@ val buildFoo = task("configureFoo", type = CMakeBuildTask::class) {
 buildFoo.dependsOn(configureFoo) // Optional: Just make sure its configured when you run the build task
 ```
 
+# Learn more about configuring Cross-Compiling
+
+Go to CMake official
+docs: [Cross-Compiling](https://cmake.org/cmake/help/latest/manual/cmake-toolchains.7.html#cross-compiling)
+
+Go to LLVM official docs: [Cross-compilation using Clang](https://clang.llvm.org/docs/CrossCompilation.html)
+
 ## License
 
 All these plugins are licensed under the Apache License, Version 2.0 with no warranty (expressed or implied) for any
