@@ -19,6 +19,10 @@
 package io.github.isning.gradle.plugins.cmake
 
 import io.github.isning.gradle.plugins.cmake.params.*
+import io.github.isning.gradle.plugins.cmake.params.entries.asCMakeParams
+import io.github.isning.gradle.plugins.cmake.params.entries.lang.ModifiableCEntriesImpl
+import io.github.isning.gradle.plugins.cmake.params.entries.lang.ModifiableCXXEntriesImpl
+import io.github.isning.gradle.plugins.cmake.params.entries.plus
 import io.github.isning.gradle.plugins.cmake.utils.upperCamelCaseName
 import org.gradle.api.Named
 import org.gradle.api.Project
@@ -209,4 +213,12 @@ open class CMakeTargetImpl<C : ModifiableCMakeGeneralParams, B : ModifiableCMake
         { buildParamsInitialOverlay },
         { configParamsInitialOverlay },
     )
+}
+
+fun ModifiableCMakeTarget<*, *>.enableClang() {
+    configParams = (ModifiableCEntriesImpl().apply {
+        compiler = "clang"
+    } + ModifiableCXXEntriesImpl().apply {
+        compiler = "clang++"
+    }).asCMakeParams.let { configParams?.plus(it) ?: it }
 }
