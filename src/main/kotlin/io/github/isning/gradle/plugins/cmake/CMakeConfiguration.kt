@@ -42,12 +42,12 @@ interface ModifiableCMakeConfiguration<C : CMakeParams?, B : CMakeParams?> : CMa
 
     fun configParams(configure: C.() -> Unit) =
         cleanConfigParamsFactory.create()!!.apply(configure).let { new ->
-            configParams = configParams?.let { it + new } ?: new
+            configParams += new
         }
 
     fun buildParams(configure: B.() -> Unit) =
         cleanBuildParamsFactory.create()!!.apply(configure).let { new ->
-            buildParams = buildParams?.let { it + new } ?: new
+            buildParams += new
         }
 }
 
@@ -188,5 +188,5 @@ class CustomCMakExecutionConfiguration(
 operator fun CMakeExecutionConfiguration.plus(other: CMakeExecutionConfiguration) = CustomCMakExecutionConfiguration(
     executable = other.executable ?: executable,
     workingFolder = other.workingFolder ?: workingFolder,
-    parameters = other.parameters ?: parameters?.let { other.parameters?.let { o -> o + it } ?: it },
+    parameters = parameters + other.parameters,
 )

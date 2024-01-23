@@ -216,9 +216,9 @@ open class CMakeTargetImpl<C : ModifiableCMakeGeneralParams, B : ModifiableCMake
 }
 
 fun ModifiableCMakeTarget<*, *>.enableClang() {
-    configParams = (ModifiableCEntriesImpl().apply {
+    configParams += (ModifiableCEntriesImpl().apply {
         compiler = "clang"
     } + ModifiableCXXEntriesImpl().apply {
         compiler = "clang++"
-    }).asCMakeParams.let { configParams?.plus(it) ?: it }
+    }).asCMakeParams
 }

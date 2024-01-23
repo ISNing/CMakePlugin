@@ -92,8 +92,8 @@ val CMakeCacheEntries.asCMakeParams: CMakeParams
 
 operator fun <T : CMakeCacheEntries> T.invoke(configure: T.() -> Unit): Unit = configure()
 
-operator fun CMakeCacheEntries.plus(params: CMakeCacheEntries): CMakeCacheEntries =
-    CombinedCMakeEntries(this, params)
+operator fun CMakeCacheEntries?.plus(params: CMakeCacheEntries?): CMakeCacheEntries =
+    CombinedCMakeEntries(this ?: emptyCMakeEntries(), params ?: emptyCMakeEntries())
 
 fun CMakeCacheEntries.internalPlus(params: CMakeCacheEntries): CMakeCacheEntries =
     CustomExplicitlyRemovedEntriesRecordedCMakeEntries(

@@ -40,7 +40,8 @@ class CombinedCMakeParams(val params: List<CMakeParams>) : CMakeParamsValueFilte
         get() = combined.explicitlyRemovedElements
 }
 
-operator fun CMakeParams.plus(params: CMakeParams) = CombinedCMakeParams(this, params)
+operator fun CMakeParams?.plus(params: CMakeParams?) =
+    CombinedCMakeParams(this ?: emptyCMakeParams(), params ?: emptyCMakeParams())
 
 fun CMakeParams.internalPlus(params: CMakeParams): CMakeParamsValueFilteredParamsToBeRemovedRecorded =
     CustomExplicitlyRemovedParamsRecordedCMakeParams(
