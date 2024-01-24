@@ -19,6 +19,7 @@
 package io.github.isning.gradle.plugins.cmake
 
 import io.github.isning.gradle.plugins.cmake.params.*
+import io.github.isning.gradle.plugins.cmake.params.entries.CustomCMakeCacheEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.asCMakeParams
 import io.github.isning.gradle.plugins.cmake.params.entries.lang.ModifiableCEntriesImpl
 import io.github.isning.gradle.plugins.cmake.params.entries.lang.ModifiableCXXEntriesImpl
@@ -220,5 +221,25 @@ fun ModifiableCMakeTarget<*, *>.enableClang() {
         compiler = "clang"
     } + ModifiableCXXEntriesImpl().apply {
         compiler = "clang++"
+    }).asCMakeParams
+}
+
+fun ModifiableCMakeTarget<*, *>.setCompilerTarget(target: String?) {
+    configParams += (ModifiableCEntriesImpl().apply {
+        compilerTarget = target
+    } + ModifiableCXXEntriesImpl().apply {
+        compilerTarget = target
+    }).asCMakeParams
+}
+
+fun ModifiableCMakeTarget<*, *>.setSysRoot(sysRoot: String) {
+    configParams += CustomCMakeCacheEntries(mapOf("CMAKE_SYSROOT" to sysRoot)).asCMakeParams
+}
+
+fun ModifiableCMakeTarget<*, *>.forceUseLld() {
+    configParams += (ModifiableCEntriesImpl().apply {
+        flags = "-fuse-ld=lld"
+    } + ModifiableCXXEntriesImpl().apply {
+        flags = "-fuse-ld=lld"
     }).asCMakeParams
 }
