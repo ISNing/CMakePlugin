@@ -231,6 +231,9 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
                     systemProcessor = "x86_64"
                 }
             }
+            useClang()
+            setCompilerTarget("x86_64-linux-gnu")
+            forceUseLld()
         })
         factories.add(("linuxArm64" to { name: String ->
             LinuxTarget(
@@ -245,6 +248,9 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
                     systemProcessor = "aarch64"
                 }
             }
+            useClang()
+            setCompilerTarget("aarch64-linux-gnu")
+            forceUseLld()
         })
         factories.add(("linuxArm32Hfp" to { name: String ->
             LinuxTarget(
@@ -259,6 +265,9 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
                     systemProcessor = "armv7hf"
                 }
             }
+            useClang()
+            setCompilerTarget("armv7hf-linux-gnu")
+            forceUseLld()
         })
         factories.add(("linuxMips32" to { name: String ->
             LinuxTarget(
@@ -273,6 +282,9 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
                     systemProcessor = "mips"
                 }
             }
+            useClang()
+            setCompilerTarget("mips-linux-gnu")
+            forceUseLld()
         })
         factories.add(("linuxMipsel32" to { name: String ->
             LinuxTarget(
@@ -287,6 +299,9 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
                     systemProcessor = "mipsel"
                 }
             }
+            useClang()
+            setCompilerTarget("mipsel-linux-gnu")
+            forceUseLld()
         })
         factories.add(("msvcX86" to { name: String ->
             MSVCTarget(
@@ -326,9 +341,15 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
         }).factory {
             configParams {
                 entries {
+                    // When using llvm toolchains, "Windows" target will cause the generation of invalid parameter,
+                    // which will cause build failure, so we override system name to "Generic" here
+                    systemName = "Generic"
                     systemProcessor = "i686"
                 }
             }
+            useClang()
+            setCompilerTarget("i686-w64-mingw32")
+            forceUseLld()
         })
         factories.add(("mingwX64" to { name: String ->
             MinGWTarget(
@@ -340,10 +361,17 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
         }).factory {
             configParams {
                 entries {
+                    // When using llvm toolchains, "Windows" target will cause the generation of invalid parameter,
+                    // which will cause build failure, so we override system name to "Generic" here
+                    systemName = "Generic"
                     systemProcessor = "x86_64"
                 }
             }
+            useClang()
+            setCompilerTarget("x86_64-w64-mingw32")
+            forceUseLld()
         })
+        // Darwin targets ar not tested
         factories.add(("macosX64" to { name: String ->
             DarwinTarget(
                 project,
