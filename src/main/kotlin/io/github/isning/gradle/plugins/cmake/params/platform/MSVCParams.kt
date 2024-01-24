@@ -35,12 +35,10 @@ interface ModifiableMSVCParams<T : MSVCEntries> : ModifiableWindowsParams<T>, MS
 
 open class MSVCParamsImpl : AbstractWindowsParams(), MSVCParams {
     override val entries: CMakeCacheEntries? = MSVCEntriesImpl()
-    override val generator: String? = "Visual Studio 17 2022"
 }
 
 class ModifiableMSVCParamsImpl : AbstractModifiableWindowsParams<ModifiableMSVCEntries>(),
     ModifiableMSVCParams<ModifiableMSVCEntries> {
     override var entries: CMakeCacheEntries? by recorder.observed(ModifiableMSVCEntriesImpl())
     override val cleanEntriesFactory: Factory<ModifiableMSVCEntries> = Factory { ModifiableMSVCEntriesImpl() }
-    override var generator: String? by recorder.observed("Visual Studio 17 2022")
 }

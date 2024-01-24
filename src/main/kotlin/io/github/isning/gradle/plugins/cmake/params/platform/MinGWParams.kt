@@ -35,12 +35,10 @@ interface ModifiableMinGWParams<T : MinGWEntries> : ModifiableWindowsParams<T>, 
 
 open class MinGWParamsImpl : AbstractWindowsParams(), MinGWParams {
     override val entries: CMakeCacheEntries? = MinGWEntriesImpl()
-    override val generator: String? = "MinGW Makefiles"
 }
 
 class ModifiableMinGWParamsImpl : AbstractModifiableWindowsParams<ModifiableMinGWEntries>(),
     ModifiableMinGWParams<ModifiableMinGWEntries> {
     override var entries: CMakeCacheEntries? by recorder.observed(ModifiableMinGWEntriesImpl())
     override val cleanEntriesFactory: Factory<ModifiableMinGWEntries> = Factory { ModifiableMinGWEntriesImpl() }
-    override var generator: String? by recorder.observed("MinGW Makefiles")
 }

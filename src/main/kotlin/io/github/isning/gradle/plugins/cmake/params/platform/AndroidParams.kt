@@ -35,12 +35,10 @@ interface ModifiableAndroidParams<T : AndroidEntries> : ModifiablePlatformParams
 
 open class AndroidParamsImpl : AbstractPlatformParams(), AndroidParams {
     override val entries: CMakeCacheEntries? = AndroidEntriesImpl()
-    override val generator: String? = "Ninja"
 }
 
 class ModifiableAndroidParamsImpl : AbstractModifiablePlatformParams<ModifiableAndroidEntries>(),
     ModifiableAndroidParams<ModifiableAndroidEntries> {
     override var entries: CMakeCacheEntries? by recorder.observed(ModifiableAndroidEntriesImpl())
     override val cleanEntriesFactory: Factory<ModifiableAndroidEntries> = Factory { ModifiableAndroidEntriesImpl() }
-    override var generator: String? = "Ninja"
 }
