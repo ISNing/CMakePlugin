@@ -237,9 +237,17 @@ fun ModifiableCMakeTarget<*, *>.setSysRoot(sysRoot: String) {
 }
 
 fun ModifiableCMakeTarget<*, *>.forceUseLld() {
-    configParams += (ModifiableCEntriesImpl().apply {
-        flags = "-fuse-ld=lld"
-    } + ModifiableCXXEntriesImpl().apply {
-        flags = "-fuse-ld=lld"
-    }).asCMakeParams
+    // Much better solution: CustomCMakeCacheEntries(mapOf("CMAKE_LINKER_TYPE" to "LLD"))
+    // However, it's not released, wait for 3.29: https://cmake.org/cmake/help/git-master/variable/CMAKE_LINKER_TYPE.html
+
+    // Note: There is no need to handle CMAKE_STATIC_LINKER_FLAGS_INIT (for static libraries) here
+    // because the archiver is invoked, rather than the linker.
+    // From: https://stackoverflow.com/a/68066428/18799127
+    configParams += CustomCMakeCacheEntries(
+        mapOf(
+            "CMAKE_EXE_LINKER_FLAGS_INIT" to "-fuse-ld=lld",
+            "CMAKE_MODULE_LINKER_FLAGS_INIT" to "-fuse-ld=lld",
+            "CMAKE_SHARED_LINKER_FLAGS_INIT" to "-fuse-ld=lld",
+        )
+    ).asCMakeParams
 }
