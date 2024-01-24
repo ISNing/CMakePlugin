@@ -28,6 +28,7 @@ fun <T : CMakeTarget> (Pair<String, (String) -> T?>).factory(configure: T.() -> 
 
 interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWithPresetFunctions {
     fun registerFactories(project: Project, inheritedParents: List<CMakeConfiguration>, inheritedNames: List<String>) {
+        // No extra parameters added
         factories.add(("host" to { name: String ->
             HostTarget(
                 project,
@@ -36,6 +37,7 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
                 inheritedNames
             )
         }).factory { })
+        // Use Android NDK for building android target by default
         factories.add(("androidX64" to { name: String ->
             AndroidTarget(
                 project,
@@ -92,6 +94,7 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
                 }
             }
         })
+        // Apple targets are not tested
         factories.add(("iosArm32" to { name: String ->
             IOSTarget(
                 project,
@@ -218,6 +221,7 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
                 }
             }
         })
+        // Use Clang to cross-compile linux target by default
         factories.add(("linuxX64" to { name: String ->
             LinuxTarget(
                 project,
@@ -303,6 +307,7 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
             setCompilerTarget("mipsel-linux-gnu")
             forceUseLld()
         })
+        // It seems msvc target are not supported for llvm cross-compiling on linux or other OSes
         factories.add(("msvcX86" to { name: String ->
             MSVCTarget(
                 project,
