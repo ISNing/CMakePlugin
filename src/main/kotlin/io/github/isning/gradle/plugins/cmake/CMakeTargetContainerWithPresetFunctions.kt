@@ -232,6 +232,62 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
                 }
             }
         })
+        factories.add(("linuxArm64" to { name: String ->
+            LinuxTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
+            configParams {
+                entries {
+                    systemProcessor = "aarch64"
+                }
+            }
+        })
+        factories.add(("linuxArm32Hfp" to { name: String ->
+            LinuxTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
+            configParams {
+                entries {
+                    systemProcessor = "armv7hf"
+                }
+            }
+        })
+        factories.add(("linuxMips32" to { name: String ->
+            LinuxTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
+            configParams {
+                entries {
+                    systemProcessor = "mips"
+                }
+            }
+        })
+        factories.add(("linuxMipsel32" to { name: String ->
+            LinuxTarget(
+                project,
+                name,
+                inheritedParents,
+                inheritedNames
+            )
+        }).factory {
+            configParams {
+                entries {
+                    systemProcessor = "mipsel"
+                }
+            }
+        })
         factories.add(("msvcX86" to { name: String ->
             MSVCTarget(
                 project,
@@ -313,62 +369,6 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
             configParams {
                 entries {
                     systemProcessor = "arm64"
-                }
-            }
-        })
-        factories.add(("linuxArm64" to { name: String ->
-            LinuxTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    systemProcessor = "aarch64"
-                }
-            }
-        })
-        factories.add(("linuxArm32Hfp" to { name: String ->
-            LinuxTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    systemProcessor = "armv7hf"
-                }
-            }
-        })
-        factories.add(("linuxMips32" to { name: String ->
-            LinuxTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    systemProcessor = "mips"
-                }
-            }
-        })
-        factories.add(("linuxMipsel32" to { name: String ->
-            LinuxTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    systemProcessor = "mipsel"
                 }
             }
         })
@@ -616,6 +616,69 @@ interface CMakeTargetContainerWithPresetFunctions : CMakeTargetContainerWithFact
     fun linuxX64(configure: Action<LinuxTarget>) = linuxX64("linuxX64") { configure.execute(this) }
 
     @Suppress("UNCHECKED_CAST")
+    fun linuxArm64(
+        name: String = "linuxArm64",
+        configure: CMakeTarget.() -> Unit = { }
+    ): CMakeTarget =
+        configureOrCreate(
+            name,
+            factories.getByName("linuxArm64") as CMakeTargetFactory<LinuxTarget>,
+            configure
+        )
+
+    fun linuxArm64() = linuxArm64("linuxArm64") { }
+    fun linuxArm64(name: String) = linuxArm64(name) { }
+    fun linuxArm64(name: String, configure: Action<CMakeTarget>) = linuxArm64(name) { configure.execute(this) }
+
+    @Suppress("UNCHECKED_CAST")
+    fun linuxArm32Hfp(
+        name: String = "linuxArm32Hfp",
+        configure: LinuxTarget.() -> Unit = { }
+    ): LinuxTarget =
+        configureOrCreate(
+            name,
+            factories.getByName("linuxArm32Hfp") as CMakeTargetFactory<LinuxTarget>,
+            configure
+        )
+
+    fun linuxArm32Hfp() = linuxArm32Hfp("linuxArm32Hfp") { }
+
+    fun linuxArm32Hfp(name: String) = linuxArm32Hfp(name) { }
+
+    fun linuxArm32Hfp(name: String, configure: Action<LinuxTarget>) = linuxArm32Hfp(name) { configure.execute(this) }
+
+    @Suppress("UNCHECKED_CAST")
+    fun linuxMips32(
+        name: String = "linuxMips32",
+        configure: LinuxTarget.() -> Unit = { }
+    ): LinuxTarget =
+        configureOrCreate(
+            name,
+            factories.getByName("linuxMips32") as CMakeTargetFactory<LinuxTarget>,
+            configure
+        )
+
+    fun linuxMips32() = linuxMips32("linuxMips32") { }
+    fun linuxMips32(name: String) = linuxMips32(name) { }
+    fun linuxMips32(name: String, configure: Action<LinuxTarget>) = linuxMips32(name) { configure.execute(this) }
+
+    @Suppress("UNCHECKED_CAST")
+    fun linuxMipsel32(
+        name: String = "linuxMipsel32",
+        configure: LinuxTarget.() -> Unit = { }
+    ): LinuxTarget =
+        configureOrCreate(
+            name,
+            factories.getByName("linuxMipsel32") as CMakeTargetFactory<LinuxTarget>,
+            configure
+        )
+
+
+    fun linuxMipsel32() = linuxMipsel32("linuxMipsel32") { }
+    fun linuxMipsel32(name: String) = linuxMipsel32(name) { }
+    fun linuxMipsel32(name: String, configure: Action<LinuxTarget>) = linuxMipsel32(name) { configure.execute(this) }
+
+    @Suppress("UNCHECKED_CAST")
     fun msvcX86(
         name: String = "msvcX86",
         configure: MSVCTarget.() -> Unit = { }
@@ -708,67 +771,4 @@ interface CMakeTargetContainerWithPresetFunctions : CMakeTargetContainerWithFact
     fun macosArm64() = macosArm64("macosArm64") { }
     fun macosArm64(name: String) = macosArm64(name) { }
     fun macosArm64(name: String, configure: Action<DarwinTarget>) = macosArm64(name) { configure.execute(this) }
-
-    @Suppress("UNCHECKED_CAST")
-    fun linuxArm64(
-        name: String = "linuxArm64",
-        configure: CMakeTarget.() -> Unit = { }
-    ): CMakeTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("linuxArm64") as CMakeTargetFactory<LinuxTarget>,
-            configure
-        )
-
-    fun linuxArm64() = linuxArm64("linuxArm64") { }
-    fun linuxArm64(name: String) = linuxArm64(name) { }
-    fun linuxArm64(name: String, configure: Action<CMakeTarget>) = linuxArm64(name) { configure.execute(this) }
-
-    @Suppress("UNCHECKED_CAST")
-    fun linuxArm32Hfp(
-        name: String = "linuxArm32Hfp",
-        configure: LinuxTarget.() -> Unit = { }
-    ): LinuxTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("linuxArm32Hfp") as CMakeTargetFactory<LinuxTarget>,
-            configure
-        )
-
-    fun linuxArm32Hfp() = linuxArm32Hfp("linuxArm32Hfp") { }
-
-    fun linuxArm32Hfp(name: String) = linuxArm32Hfp(name) { }
-
-    fun linuxArm32Hfp(name: String, configure: Action<LinuxTarget>) = linuxArm32Hfp(name) { configure.execute(this) }
-
-    @Suppress("UNCHECKED_CAST")
-    fun linuxMips32(
-        name: String = "linuxMips32",
-        configure: LinuxTarget.() -> Unit = { }
-    ): LinuxTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("linuxMips32") as CMakeTargetFactory<LinuxTarget>,
-            configure
-        )
-
-    fun linuxMips32() = linuxMips32("linuxMips32") { }
-    fun linuxMips32(name: String) = linuxMips32(name) { }
-    fun linuxMips32(name: String, configure: Action<LinuxTarget>) = linuxMips32(name) { configure.execute(this) }
-
-    @Suppress("UNCHECKED_CAST")
-    fun linuxMipsel32(
-        name: String = "linuxMipsel32",
-        configure: LinuxTarget.() -> Unit = { }
-    ): LinuxTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("linuxMipsel32") as CMakeTargetFactory<LinuxTarget>,
-            configure
-        )
-
-
-    fun linuxMipsel32() = linuxMipsel32("linuxMipsel32") { }
-    fun linuxMipsel32(name: String) = linuxMipsel32(name) { }
-    fun linuxMipsel32(name: String, configure: Action<LinuxTarget>) = linuxMipsel32(name) { configure.execute(this) }
 }
