@@ -216,6 +216,14 @@ open class CMakeTargetImpl<C : ModifiableCMakeGeneralParams, B : ModifiableCMake
     )
 }
 
+fun ModifiableCMakeTarget<*, *>.useZigC() {
+    configParams += (ModifiableCEntriesImpl().apply {
+        compiler = "zig;cc"
+    } + ModifiableCXXEntriesImpl().apply {
+        compiler = "zig;c++"
+    }).asCMakeParams
+}
+
 fun ModifiableCMakeTarget<*, *>.useClang() {
     configParams += (ModifiableCEntriesImpl().apply {
         compiler = "clang"
