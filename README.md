@@ -34,10 +34,10 @@ cmake {
             }
 
             listOf(
-                androidX64(),
-                androidX86(),
-                androidArm32(),
-                androidArm64(),
+              androidX64.ndk(),
+              androidX86.ndk(),
+              androidArm32.ndk(),
+              androidArm64.ndk(),
             ).forEach {
                 it.configParams {
                     entries {
@@ -45,8 +45,8 @@ cmake {
                     }
                 }
             }
-            mingwX64()
-            msvcX64()
+          mingwX64.zig()
+          msvcX64.zig()
             host()
         }
     }
@@ -58,9 +58,10 @@ cmake {
 You can define properties in different scopes such as `cmake` block, `CMakeProject` block or`CMakeTarget` block,
 and finally when it's going to build, the properties will be merged together.
 
-The preset functions like `androidX64()` will return a target with some default properties for crosscompiling,
-and there's also different requirements for different target.
+The preset functions like `androidX64.ndk()` will return a target with some default properties for crosscompiling using
+Android NDK toolchains, and there's also different toolchain specified presets for different target.
 
+And for different presets, there are still some properties needs to be manually filled
 For example, `androidX64()` will require `ndk` and/or other related properties.
 
 And for all the properties, there are several stub strings that will be replaced by the plugin:

@@ -28,780 +28,650 @@ fun <T : CMakeTarget> (Pair<String, (String) -> T?>).factory(configure: T.() -> 
 
 interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWithPresetFunctions {
     fun registerFactories(project: Project, inheritedParents: List<CMakeConfiguration>, inheritedNames: List<String>) {
+        fun String.hostFactory(configure: HostTarget.() -> Unit): CMakeTargetFactory<HostTarget> =
+            (this to { name: String ->
+                HostTarget(
+                    project,
+                    name,
+                    inheritedParents,
+                    inheritedNames
+                )
+            }).factory(configure)
+
+        fun String.androidFactory(configure: AndroidTarget.() -> Unit): CMakeTargetFactory<AndroidTarget> =
+            (this to { name: String ->
+                AndroidTarget(
+                    project,
+                    name,
+                    inheritedParents,
+                    inheritedNames
+                )
+            }).factory(configure)
+
+        fun String.iosFactory(configure: IOSTarget.() -> Unit): CMakeTargetFactory<IOSTarget> =
+            (this to { name: String ->
+                IOSTarget(
+                    project,
+                    name,
+                    inheritedParents,
+                    inheritedNames
+                )
+            }).factory(configure)
+
+        fun String.watchosFactory(configure: WatchOSTarget.() -> Unit): CMakeTargetFactory<WatchOSTarget> =
+            (this to { name: String ->
+                WatchOSTarget(
+                    project,
+                    name,
+                    inheritedParents,
+                    inheritedNames
+                )
+            }).factory(configure)
+
+        fun String.tvosFactory(configure: TvOSTarget.() -> Unit): CMakeTargetFactory<TvOSTarget> =
+            (this to { name: String ->
+                TvOSTarget(
+                    project,
+                    name,
+                    inheritedParents,
+                    inheritedNames
+                )
+            }).factory(configure)
+
+        fun String.linuxFactory(configure: LinuxTarget.() -> Unit): CMakeTargetFactory<LinuxTarget> =
+            (this to { name: String ->
+                LinuxTarget(
+                    project,
+                    name,
+                    inheritedParents,
+                    inheritedNames
+                )
+            }).factory(configure)
+
+        fun String.msvcFactory(configure: MSVCTarget.() -> Unit): CMakeTargetFactory<MSVCTarget> =
+            (this to { name: String ->
+                MSVCTarget(
+                    project,
+                    name,
+                    inheritedParents,
+                    inheritedNames
+                )
+            }).factory(configure)
+
+        fun String.mingwFactory(configure: MinGWTarget.() -> Unit): CMakeTargetFactory<MinGWTarget> =
+            (this to { name: String ->
+                MinGWTarget(
+                    project,
+                    name,
+                    inheritedParents,
+                    inheritedNames
+                )
+            }).factory(configure)
+
+        fun String.darwinFactory(configure: DarwinTarget.() -> Unit): CMakeTargetFactory<DarwinTarget> =
+            (this to { name: String ->
+                DarwinTarget(
+                    project,
+                    name,
+                    inheritedParents,
+                    inheritedNames
+                )
+            }).factory(configure)
+
+        fun AndroidTarget.configNdk(abi: String) {
+            configParams {
+                entries {
+                    archAbi = abi
+                }
+            }
+        }
+
+        fun AbstractAppleTarget<*>.configXcode(arch: String) {
+            configParams {
+                entries {
+                    osxArchitectures = arch
+                }
+            }
+        }
+
+        fun <T : ModifiableCMakeTarget<*, *>> T.targetToWithClang(target: String) {
+            useClang()
+            setCompilerTarget(target)
+            forceUseLld()
+        }
+
+        fun <T : ModifiableCMakeTarget<*, *>> T.targetToWithZig(target: String) {
+            useZigC()
+            setCompilerTarget(target)
+        }
+
         // No extra parameters added
-        factories.add(("host" to { name: String ->
-            HostTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory { })
-        // Use Android NDK for building android target by default
-        factories.add(("androidX64" to { name: String ->
-            AndroidTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    archAbi = "x86_64"
-                }
-            }
+        factories.add("host".hostFactory { })
+
+
+        factories.add("android".androidFactory { })
+
+        factories.add("androidX64.ndk".androidFactory {
+            configNdk("x86_64")
         })
-        factories.add(("androidX86" to { name: String ->
-            AndroidTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    archAbi = "x86"
-                }
-            }
+        factories.add("androidX86.ndk".androidFactory {
+            configNdk("x86")
         })
-        factories.add(("androidArm32" to { name: String ->
-            AndroidTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    archAbi = "armeabi-v7a"
-                }
-            }
+        factories.add("androidArm32.ndk".androidFactory {
+            configNdk("armeabi-v7a")
         })
-        factories.add(("androidArm64" to { name: String ->
-            AndroidTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    archAbi = "arm64-v8a"
-                }
-            }
+        factories.add("androidArm64.ndk".androidFactory {
+            configNdk("arm64-v8a")
         })
-        // Apple targets are not tested
-        factories.add(("iosArm32" to { name: String ->
-            IOSTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    osxArchitectures = "armv7"
-                }
-            }
+
+        factories.add("androidX64.clang".androidFactory {
+            targetToWithClang("x86_64-linux-android")
         })
-        factories.add(("iosArm64" to { name: String ->
-            IOSTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    osxArchitectures = "arm64"
-                }
-            }
+        factories.add("androidX86.clang".androidFactory {
+            targetToWithClang("i686-linux-android")
         })
-        factories.add(("iosX64" to { name: String ->
-            IOSTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    osxArchitectures = "x86_64"
-                }
-            }
+        factories.add("androidArm32.clang".androidFactory {
+            targetToWithClang("armv7a-linux-androideabi")
         })
-        factories.add(("watchosArm32" to { name: String ->
-            WatchOSTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    osxArchitectures = "armv7k"
-                }
-            }
+        factories.add("androidArm64.clang".androidFactory {
+            targetToWithClang("aarch64-linux-android")
         })
-        factories.add(("watchosArm64" to { name: String ->
-            WatchOSTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    osxArchitectures = "arm64_32"
-                }
-            }
+
+        factories.add("androidX64.zig".androidFactory {
+            targetToWithZig("x86_64-linux-android")
         })
-        factories.add(("watchosX86" to { name: String ->
-            WatchOSTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    osxArchitectures = "i386"
-                }
-            }
+        factories.add("androidX86.zig".androidFactory {
+            targetToWithZig("i686-linux-android")
         })
-        factories.add(("watchosX64" to { name: String ->
-            WatchOSTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    osxArchitectures = "x86_64"
-                }
-            }
+        factories.add("androidArm32.zig".androidFactory {
+            targetToWithZig("armv7a-linux-androideabi")
         })
-        factories.add(("tvosArm64" to { name: String ->
-            TvOSTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    osxArchitectures = "arm64"
-                }
-            }
+        factories.add("androidArm64.zig".androidFactory {
+            targetToWithZig("aarch64-linux-android")
         })
-        factories.add(("tvosX64" to { name: String ->
-            TvOSTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    osxArchitectures = "x86_64"
-                }
-            }
+
+
+        factories.add("ios".iosFactory { })
+        factories.add("watchos".watchosFactory { })
+        factories.add("tvos".tvosFactory { })
+
+        factories.add("iosArm32.xcode".iosFactory {
+            configXcode("armv7")
         })
-        // Use Clang to cross-compile linux target by default
-        factories.add(("linuxX64" to { name: String ->
-            LinuxTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    systemProcessor = "x86_64"
-                }
-            }
-            useClang()
-            setCompilerTarget("x86_64-linux-gnu")
-            forceUseLld()
+        factories.add("iosArm64.xcode".iosFactory {
+            configXcode("arm64")
         })
-        factories.add(("linuxArm64" to { name: String ->
-            LinuxTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    systemProcessor = "aarch64"
-                }
-            }
-            useClang()
-            setCompilerTarget("aarch64-linux-gnu")
-            forceUseLld()
+        factories.add("iosX64.xcode".iosFactory {
+            configXcode("x86_64")
         })
-        factories.add(("linuxArm32Hfp" to { name: String ->
-            LinuxTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    systemProcessor = "armv7hf"
-                }
-            }
-            useClang()
-            setCompilerTarget("armv7hf-linux-gnu")
-            forceUseLld()
+        factories.add("watchosArm32.xcode".watchosFactory {
+            configXcode("armv7k")
         })
-        factories.add(("linuxMips32" to { name: String ->
-            LinuxTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    systemProcessor = "mips"
-                }
-            }
-            useClang()
-            setCompilerTarget("mips-linux-gnu")
-            forceUseLld()
+        factories.add("watchosArm64.xcode".watchosFactory {
+            configXcode("arm64_32")
         })
-        factories.add(("linuxMipsel32" to { name: String ->
-            LinuxTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    systemProcessor = "mipsel"
-                }
-            }
-            useClang()
-            setCompilerTarget("mipsel-linux-gnu")
-            forceUseLld()
+        factories.add("watchosX86.xcode".watchosFactory {
+            configXcode("i386")
         })
-        // It seems msvc target are not supported for llvm cross-compiling on linux or other OSes
-        factories.add(("msvcX86" to { name: String ->
-            MSVCTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    systemProcessor = "x86"
-                }
-            }
+        factories.add("watchosX64.xcode".watchosFactory {
+            configXcode("x86_64")
         })
-        factories.add(("msvcX64" to { name: String ->
-            MSVCTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    systemProcessor = "x86_64"
-                }
-            }
+        factories.add("tvosArm64.xcode".tvosFactory {
+            configXcode("arm64")
         })
-        factories.add(("mingwX86" to { name: String ->
-            MinGWTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
+        factories.add("tvosX64.xcode".tvosFactory {
+            configXcode("x86_64")
+        })
+
+        factories.add("iosArm32.clang".iosFactory {
+            targetToWithClang("armv7-ios-none")
+        })
+        factories.add("iosArm64.clang".iosFactory {
+            targetToWithClang("aaarch64-ios-none")
+        })
+        factories.add("iosX64.clang".iosFactory {
+            targetToWithClang("x86_64-ios-none")
+        })
+        factories.add("watchosArm32.clang".watchosFactory {
+            targetToWithClang("armv7k-watchos-none")
+        })
+        factories.add("watchosArm64.clang".watchosFactory {
+            targetToWithClang("arm64_32-watchos-none")
+        })
+        factories.add("watchosX86.clang".watchosFactory {
+            targetToWithClang("i386-watchos-none")
+        })
+        factories.add("watchosX64.clang".watchosFactory {
+            targetToWithClang("x86_64-watchos-none")
+        })
+        factories.add("tvosArm64.clang".tvosFactory {
+            targetToWithClang("aarch64-tvos-none")
+        })
+        factories.add("tvosX64.clang".tvosFactory {
+            targetToWithClang("x86_64-tvos-none")
+        })
+
+
+
+        factories.add("iosArm32.zig".iosFactory {
+            targetToWithZig("armv7-ios-none")
+        })
+        factories.add("iosArm64.zig".iosFactory {
+            targetToWithZig("aarch64-ios-none")
+        })
+        factories.add("iosX64.zig".iosFactory {
+            targetToWithZig("x86_64-ios-none")
+        })
+        factories.add("watchosArm32.zig".watchosFactory {
+            targetToWithZig("armv7k-watchos-none")
+        })
+        factories.add("watchosArm64.zig".watchosFactory {
+            targetToWithZig("aarch64_32-watchos-none")
+        })
+        factories.add("watchosX86.zig".watchosFactory {
+            targetToWithZig("i386-watchos-none")
+        })
+        factories.add("watchosX64.zig".watchosFactory {
+            targetToWithZig("x86_64-watchos-none")
+        })
+        factories.add("tvosArm64.zig".tvosFactory {
+            targetToWithZig("aarch64-tvos-none")
+        })
+        factories.add("tvosX64.zig".tvosFactory {
+            targetToWithZig("x86_64-tvos-none")
+        })
+
+
+        factories.add("linux".linuxFactory {})
+
+        factories.add("linuxX64.clang".linuxFactory {
+            targetToWithClang("x86_64-linux-gnu")
+        })
+        factories.add("linuxArm64.clang".linuxFactory {
+            targetToWithClang("aarch64-linux-gnu")
+        })
+        factories.add("linuxArm32Hfp.clang".linuxFactory {
+            targetToWithClang("armv7hf-linux-gnu")
+        })
+        factories.add("linuxMips32.clang".linuxFactory {
+            targetToWithClang("mips-linux-gnu")
+        })
+        factories.add("linuxMipsel32.clang".linuxFactory {
+            targetToWithClang("mipsel-linux-gnu")
+        })
+
+        factories.add("linuxX64.zig".linuxFactory {
+            targetToWithZig("x86_64-linux-gnu")
+        })
+        factories.add("linuxArm64.zig".linuxFactory {
+            targetToWithZig("aarch64-linux-gnu")
+        })
+        factories.add("linuxArm32Hfp.zig".linuxFactory {
+            targetToWithZig("armv7hf-linux-gnu")
+        })
+        factories.add("linuxMips32.zig".linuxFactory {
+            targetToWithZig("mips-linux-gnu")
+        })
+        factories.add("linuxMipsel32.zig".linuxFactory {
+            targetToWithZig("mipsel-linux-gnu")
+        })
+
+
+        factories.add("msvc".msvcFactory { })
+
+        factories.add("msvcX86.clang".msvcFactory {
+            targetToWithClang("i686-windows-msvc")
+        })
+        factories.add("msvcX64.clang".msvcFactory {
+            targetToWithClang("x86_64-windows-msvc")
+        })
+        factories.add("msvcArm64.clang".msvcFactory {
+            targetToWithClang("aarch64-windows-msvc")
+        })
+
+        factories.add("msvcX86.zig".linuxFactory {
+            targetToWithZig("i686-windows-msvc")
+        })
+        factories.add("msvcX64.zig".linuxFactory {
+            targetToWithZig("x86_64-windows-msvc")
+        })
+        factories.add("msvcArm64.zig".linuxFactory {
+            targetToWithZig("aarch64-windows-msvc")
+        })
+
+
+        factories.add("mingw".mingwFactory { })
+
+        factories.add("mingwX86.clang".mingwFactory {
             configParams {
                 entries {
                     // When using llvm toolchains, "Windows" target will cause the generation of invalid parameter,
                     // which will cause build failure, so we override system name to "Generic" here
                     systemName = "Generic"
-                    systemProcessor = "i686"
                 }
             }
-            useClang()
-            setCompilerTarget("i686-w64-mingw32")
-            forceUseLld()
+            targetToWithClang("i686-w64-mingw32")
         })
-        factories.add(("mingwX64" to { name: String ->
-            MinGWTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
+        factories.add("mingwX64.clang".mingwFactory {
             configParams {
                 entries {
                     // When using llvm toolchains, "Windows" target will cause the generation of invalid parameter,
                     // which will cause build failure, so we override system name to "Generic" here
                     systemName = "Generic"
-                    systemProcessor = "x86_64"
                 }
             }
-            useClang()
-            setCompilerTarget("x86_64-w64-mingw32")
-            forceUseLld()
+            targetToWithClang("x86_64-w64-mingw32")
         })
-        // Darwin targets ar not tested
-        factories.add(("macosX64" to { name: String ->
-            DarwinTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
+        factories.add("mingwArm64.clang".mingwFactory {
             configParams {
                 entries {
-                    systemProcessor = "x86_64"
+                    // When using llvm toolchains, "Windows" target will cause the generation of invalid parameter,
+                    // which will cause build failure, so we override system name to "Generic" here
+                    systemName = "Generic"
                 }
             }
+            targetToWithClang("aarch64-w64-mingw32")
         })
-        factories.add(("macosArm64" to { name: String ->
-            DarwinTarget(
-                project,
-                name,
-                inheritedParents,
-                inheritedNames
-            )
-        }).factory {
-            configParams {
-                entries {
-                    systemProcessor = "arm64"
-                }
-            }
+        factories.add("mingwX86.zig".mingwFactory {
+            targetToWithZig("i686-windows-gnu")
+        })
+        factories.add("mingwX64.zig".mingwFactory {
+            targetToWithZig("x86_64-windows-gnu")
+        })
+        factories.add("mingwArm64.zig".mingwFactory {
+            targetToWithZig("aarch64-windows-gnu")
+        })
+
+
+        factories.add("macos".darwinFactory { })
+
+        factories.add("macosX64.xcode".darwinFactory {
+            configXcode("x86_64")
+        })
+        factories.add("macosArm64.xcode".darwinFactory {
+            configXcode("arm64")
+        })
+        factories.add("macosX64.zig".darwinFactory {
+            useZigC()
+            setCompilerTarget("x86_64-macos-none")
+        })
+        factories.add("macosArm64.zig".darwinFactory {
+            useZigC()
+            setCompilerTarget("aarch64-macos-none")
         })
     }
 }
 
 interface CMakeTargetContainerWithPresetFunctions : CMakeTargetContainerWithFactories {
-    @Suppress("UNCHECKED_CAST")
-    fun host(
-        name: String = "host",
-        configure: HostTarget.() -> Unit = { }
-    ): HostTarget =
-        configureOrCreate(
+
+    val host
+        get() = default<HostTarget>("host")
+
+    val android
+        get() = default<AndroidTarget>("android")
+    val androidX64
+        get() = ndkWithClangWithZig<AndroidTarget>("androidX64")
+    val androidX86
+        get() = ndkWithClangWithZig<AndroidTarget>("androidX86")
+    val androidArm32
+        get() = ndkWithClangWithZig<AndroidTarget>("androidArm32")
+    val androidArm64
+        get() = ndkWithClangWithZig<AndroidTarget>("androidArm64")
+
+    val ios
+        get() = default<IOSTarget>("ios")
+    val iosArm32
+        get() = xcodeWithClangWithZig<IOSTarget>("iosArm32")
+    val iosArm64
+        get() = xcodeWithClangWithZig<IOSTarget>("iosArm64")
+    val iosX64
+        get() = xcodeWithClangWithZig<IOSTarget>("iosX64")
+
+    val watchos
+        get() = default<WatchOSTarget>("watchos")
+    val watchosArm32
+        get() = xcodeWithClangWithZig<WatchOSTarget>("watchosArm32")
+    val watchosArm64
+        get() = xcodeWithClangWithZig<WatchOSTarget>("watchosArm64")
+    val watchosX86
+        get() = xcodeWithClangWithZig<WatchOSTarget>("watchosX86")
+    val watchosX64
+        get() = xcodeWithClangWithZig<WatchOSTarget>("watchosX64")
+
+    val tvos
+        get() = default<TvOSTarget>("tvos")
+    val tvosArm64
+        get() = xcodeWithClangWithZig<TvOSTarget>("tvosArm64")
+    val tvosX64
+        get() = xcodeWithClangWithZig<TvOSTarget>("tvosX64")
+
+    val linux
+        get() = default<LinuxTarget>("linux")
+    val linuxX64
+        get() = clangWithZig<LinuxTarget>("linuxX64")
+    val linuxArm64
+        get() = clangWithZig<LinuxTarget>("linuxArm64")
+    val linuxArm32Hfp
+        get() = clangWithZig<LinuxTarget>("linuxArm32Hfp")
+    val linuxMips32
+        get() = clangWithZig<LinuxTarget>("linuxMips32")
+    val linuxMipsel32
+        get() = clangWithZig<LinuxTarget>("linuxMipsel32")
+
+    val msvc
+        get() = default<MSVCTarget>("msvc")
+    val msvcX86
+        get() = clangWithZig<MSVCTarget>("msvcX86")
+    val msvcX64
+        get() = clangWithZig<MSVCTarget>("msvcX64")
+    val msvcArm64
+        get() = clangWithZig<MSVCTarget>("msvcArm64")
+
+    val mingw
+        get() = default<MinGWTarget>("mingw")
+    val mingwX86
+        get() = clangWithZig<MinGWTarget>("mingwX86")
+    val mingwX64
+        get() = clangWithZig<MinGWTarget>("mingwX64")
+    val mingwArm64
+        get() = clangWithZig<MinGWTarget>("mingwArm64")
+
+    val macos
+        get() = default<DarwinTarget>("macos")
+    val macosX64
+        get() = xcodeWithClangWithZig<DarwinTarget>("macosX64")
+    val macosArm64
+        get() = xcodeWithClangWithZig<DarwinTarget>("macosArm64")
+}
+
+
+interface HasBaseFactoryName {
+    val baseFactoryName: String
+}
+
+interface HasDefaultTargetName {
+    val defaultTargetName: String
+}
+
+interface HasInlinedHelperFunctions<T : CMakeTarget> {
+    fun inlinedConfigureOrCreate(
+        targetName: String,
+        factoryName: String,
+        configure: T.() -> Unit,
+    ): T
+}
+
+interface FunctionsBase<T : CMakeTarget> : HasBaseFactoryName, HasDefaultTargetName, HasInlinedHelperFunctions<T>
+
+interface DefaultFunctions<T : CMakeTarget> : FunctionsBase<T> {
+    operator fun invoke(
+        name: String = defaultTargetName,
+        configure: T.() -> Unit = { }
+    ): T =
+        inlinedConfigureOrCreate(
             name,
-            factories.getByName("host") as CMakeTargetFactory<HostTarget>,
+            baseFactoryName,
             configure
         )
 
-    fun host() = host("host") { }
-    fun host(name: String) = host(name) { }
-    fun host(name: String, configure: Action<HostTarget>) = host(name) { configure.execute(this) }
-    fun host(configure: Action<HostTarget>) = host("host") { configure.execute(this) }
+    operator fun invoke() = invoke(defaultTargetName) { }
+    operator fun invoke(name: String) = invoke(name) { }
+    operator fun invoke(name: String, configure: Action<T>) = invoke(name) { configure.execute(this) }
+    operator fun invoke(configure: Action<T>) = invoke(defaultTargetName) { configure.execute(this) }
+}
 
-    @Suppress("UNCHECKED_CAST")
-    fun androidX64(
-        name: String = "androidX64",
-        configure: AndroidTarget.() -> Unit = { }
-    ): AndroidTarget =
-        configureOrCreate(
+interface NdkFunctions<T : CMakeTarget> : FunctionsBase<T> {
+    fun ndk(
+        name: String = defaultTargetName,
+        configure: T.() -> Unit = { }
+    ): T =
+        inlinedConfigureOrCreate(
             name,
-            factories.getByName("androidX64") as CMakeTargetFactory<AndroidTarget>,
+            "$baseFactoryName.ndk",
             configure
         )
 
-    fun androidX64() = androidX64("androidX64") { }
-    fun androidX64(name: String) = androidX64(name) { }
-    fun androidX64(name: String, configure: Action<AndroidTarget>) = androidX64(name) { configure.execute(this) }
-    fun androidX64(configure: Action<AndroidTarget>) = androidX64("androidX64") { configure.execute(this) }
+    fun ndk() = ndk(defaultTargetName) { }
+    fun ndk(name: String) = ndk(name) { }
+    fun ndk(name: String, configure: Action<T>) = ndk(name) { configure.execute(this) }
+    fun ndk(configure: Action<T>) = ndk(defaultTargetName) { configure.execute(this) }
+}
 
-    @Suppress("UNCHECKED_CAST")
-    fun androidX86(
-        name: String = "androidX86",
-        configure: AndroidTarget.() -> Unit = { }
-    ): AndroidTarget =
-        configureOrCreate(
+interface XCodeFunctions<T : CMakeTarget> : FunctionsBase<T> {
+    fun xcode(
+        name: String = defaultTargetName,
+        configure: T.() -> Unit = { }
+    ): T =
+        inlinedConfigureOrCreate(
             name,
-            factories.getByName("androidX86") as CMakeTargetFactory<AndroidTarget>,
+            "$baseFactoryName.xcode",
             configure
         )
 
-    fun androidX86() = androidX86("androidX86") { }
-    fun androidX86(name: String) = androidX86(name) { }
-    fun androidX86(name: String, configure: Action<AndroidTarget>) = androidX86(name) { configure.execute(this) }
-    fun androidX86(configure: Action<AndroidTarget>) = androidX86("androidX86") { configure.execute(this) }
+    fun xcode() = xcode(defaultTargetName) { }
+    fun xcode(name: String) = xcode(name) { }
+    fun xcode(name: String, configure: Action<T>) = xcode(name) { configure.execute(this) }
+    fun xcode(configure: Action<T>) = xcode(defaultTargetName) { configure.execute(this) }
+}
 
-    @Suppress("UNCHECKED_CAST")
-    fun androidArm32(
-        name: String = "androidArm32",
-        configure: AndroidTarget.() -> Unit = { }
-    ): AndroidTarget =
-        configureOrCreate(
+interface ClangFunctions<T : CMakeTarget> : FunctionsBase<T> {
+    fun clang(
+        name: String = defaultTargetName,
+        configure: T.() -> Unit = { }
+    ): T =
+        inlinedConfigureOrCreate(
             name,
-            factories.getByName("androidArm32") as CMakeTargetFactory<AndroidTarget>,
+            "$baseFactoryName.clang",
             configure
         )
 
-    fun androidArm32() = androidArm32("androidArm32") { }
-    fun androidArm32(name: String) = androidArm32(name) { }
-    fun androidArm32(name: String, configure: Action<AndroidTarget>) = androidArm32(name) { configure.execute(this) }
-    fun androidArm32(configure: Action<AndroidTarget>) = androidArm32("androidArm32") { configure.execute(this) }
+    fun clang() = clang(defaultTargetName) { }
+    fun clang(name: String) = clang(name) { }
+    fun clang(name: String, configure: Action<T>) = clang(name) { configure.execute(this) }
+    fun clang(configure: Action<T>) = clang(defaultTargetName) { configure.execute(this) }
+}
 
-    @Suppress("UNCHECKED_CAST")
-    fun androidArm64(
-        name: String = "androidArm64",
-        configure: AndroidTarget.() -> Unit = { }
-    ): AndroidTarget =
-        configureOrCreate(
+interface ZigFunctions<T : CMakeTarget> : FunctionsBase<T> {
+    fun zig(
+        name: String = defaultTargetName,
+        configure: T.() -> Unit = { }
+    ): T =
+        inlinedConfigureOrCreate(
             name,
-            factories.getByName("androidArm64") as CMakeTargetFactory<AndroidTarget>,
+            "$baseFactoryName.zig",
             configure
         )
 
-    fun androidArm64() = androidArm64("androidArm64") { }
-    fun androidArm64(name: String) = androidArm64(name) { }
-    fun androidArm64(name: String, configure: Action<AndroidTarget>) = androidArm64(name) { configure.execute(this) }
-    fun androidArm64(configure: Action<AndroidTarget>) = androidArm64("androidArm64") { configure.execute(this) }
+    fun zig() = zig(defaultTargetName) { }
+    fun zig(name: String) = zig(name) { }
+    fun zig(name: String, configure: Action<T>) = zig(name) { configure.execute(this) }
+    fun zig(configure: Action<T>) = zig(defaultTargetName) { configure.execute(this) }
+}
+
+interface ClangWithZig<T : CMakeTarget> : ClangFunctions<T>, ZigFunctions<T>
+interface XCodeWithClangWithZig<T : CMakeTarget> : XCodeFunctions<T>, ClangWithZig<T>
+interface NdkWithClangWithZig<T : CMakeTarget> : NdkFunctions<T>, ClangWithZig<T>
+
+private inline fun <reified T : CMakeTarget> CMakeTargetContainerWithFactories.default(
+    baseFactoryName: String,
+    defaultTargetName: String = baseFactoryName
+) =
+    object :
+        DefaultFunctions<T> {
+        override val baseFactoryName: String = baseFactoryName
+        override val defaultTargetName: String = defaultTargetName
 
     @Suppress("UNCHECKED_CAST")
-    fun iosArm32(
-        name: String = "iosArm32",
-        configure: IOSTarget.() -> Unit = { }
-    ): IOSTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("iosArm32") as CMakeTargetFactory<IOSTarget>,
-            configure
-        )
+    override fun inlinedConfigureOrCreate(
+        targetName: String,
+        factoryName: String,
+        configure: T.() -> Unit
+    ): T = configureOrCreate(
+        targetName,
+        factories.getByName(factoryName) as CMakeTargetFactory<T>,
+        configure
+    )
+    }
 
-    fun iosArm32() = iosArm32("iosArm32") { }
-    fun iosArm32(name: String) = iosArm32(name) { }
-    fun iosArm32(name: String, configure: Action<IOSTarget>) = iosArm32(name) { configure.execute(this) }
-    fun iosArm32(configure: Action<IOSTarget>) = iosArm32("iosArm32") { configure.execute(this) }
-
-    @Suppress("UNCHECKED_CAST")
-    fun iosArm64(
-        name: String = "iosArm64",
-        configure: IOSTarget.() -> Unit = { }
-    ): IOSTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("iosArm64") as CMakeTargetFactory<IOSTarget>,
-            configure
-        )
-
-    fun iosArm64() = iosArm64("iosArm64") { }
-    fun iosArm64(name: String) = iosArm64(name) { }
-    fun iosArm64(name: String, configure: Action<IOSTarget>) = iosArm64(name) { configure.execute(this) }
-    fun iosArm64(configure: Action<IOSTarget>) = iosArm64("iosArm64") { configure.execute(this) }
+private inline fun <reified T : CMakeTarget> CMakeTargetContainerWithFactories.ndkWithClangWithZig(
+    baseFactoryName: String,
+    defaultTargetName: String = baseFactoryName
+) =
+    object :
+        NdkWithClangWithZig<T> {
+        override val baseFactoryName: String = baseFactoryName
+        override val defaultTargetName: String = defaultTargetName
 
     @Suppress("UNCHECKED_CAST")
-    fun iosX64(
-        name: String = "iosX64",
-        configure: IOSTarget.() -> Unit = { }
-    ): IOSTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("iosX64") as CMakeTargetFactory<IOSTarget>,
-            configure
-        )
+    override fun inlinedConfigureOrCreate(
+        targetName: String,
+        factoryName: String,
+        configure: T.() -> Unit
+    ): T = configureOrCreate(
+        targetName,
+        factories.getByName(factoryName) as CMakeTargetFactory<T>,
+        configure
+    )
+    }
 
-    fun iosX64() = iosX64("iosX64") { }
-    fun iosX64(name: String) = iosX64(name) { }
-    fun iosX64(name: String, configure: Action<IOSTarget>) = iosX64(name) { configure.execute(this) }
-    fun iosX64(configure: Action<IOSTarget>) = iosX64("iosX64") { configure.execute(this) }
-
-    @Suppress("UNCHECKED_CAST")
-    fun watchosArm32(
-        name: String = "watchosArm32",
-        configure: WatchOSTarget.() -> Unit = { }
-    ): WatchOSTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("watchosArm32") as CMakeTargetFactory<WatchOSTarget>,
-            configure
-        )
-
-    fun watchosArm32() = watchosArm32("watchosArm32") { }
-    fun watchosArm32(name: String) = watchosArm32(name) { }
-    fun watchosArm32(name: String, configure: Action<WatchOSTarget>) = watchosArm32(name) { configure.execute(this) }
-    fun watchosArm32(configure: Action<WatchOSTarget>) = watchosArm32("watchosArm32") { configure.execute(this) }
+private inline fun <reified T : CMakeTarget> CMakeTargetContainerWithFactories.xcodeWithClangWithZig(
+    baseFactoryName: String,
+    defaultTargetName: String = baseFactoryName
+) =
+    object :
+        XCodeWithClangWithZig<T> {
+        override val baseFactoryName: String = baseFactoryName
+        override val defaultTargetName: String = defaultTargetName
 
     @Suppress("UNCHECKED_CAST")
-    fun watchosArm64(
-        name: String = "watchosArm64",
-        configure: WatchOSTarget.() -> Unit = { }
-    ): WatchOSTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("watchosArm64") as CMakeTargetFactory<WatchOSTarget>,
-            configure
-        )
+    override fun inlinedConfigureOrCreate(
+        targetName: String,
+        factoryName: String,
+        configure: T.() -> Unit
+    ): T = configureOrCreate(
+        targetName,
+        factories.getByName(factoryName) as CMakeTargetFactory<T>,
+        configure
+    )
+    }
 
-    fun watchosArm64() = watchosArm64("watchosArm64") { }
-    fun watchosArm64(name: String) = watchosArm64(name) { }
-    fun watchosArm64(name: String, configure: Action<WatchOSTarget>) = watchosArm64(name) { configure.execute(this) }
-    fun watchosArm64(configure: Action<WatchOSTarget>) = watchosArm64("watchosArm64") { configure.execute(this) }
-
-    @Suppress("UNCHECKED_CAST")
-    fun watchosX86(
-        name: String = "watchosX86",
-        configure: WatchOSTarget.() -> Unit = { }
-    ): WatchOSTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("watchosX86") as CMakeTargetFactory<WatchOSTarget>,
-            configure
-        )
-
-    fun watchosX86() = watchosX86("watchosX86") { }
-    fun watchosX86(name: String) = watchosX86(name) { }
-    fun watchosX86(name: String, configure: Action<WatchOSTarget>) = watchosX86(name) { configure.execute(this) }
+private inline fun <reified T : CMakeTarget> CMakeTargetContainerWithFactories.clangWithZig(
+    baseFactoryName: String,
+    defaultTargetName: String = baseFactoryName
+) =
+    object :
+        ClangWithZig<T> {
+        override val baseFactoryName: String = baseFactoryName
+        override val defaultTargetName: String = defaultTargetName
 
     @Suppress("UNCHECKED_CAST")
-    fun watchosX64(
-        name: String = "watchosX64",
-        configure: WatchOSTarget.() -> Unit = { }
-    ): WatchOSTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("watchosX64") as CMakeTargetFactory<WatchOSTarget>,
-            configure
-        )
-
-    fun watchosX64() = watchosX64("watchosX64") { }
-    fun watchosX64(name: String) = watchosX64(name) { }
-    fun watchosX64(name: String, configure: Action<WatchOSTarget>) = watchosX64(name) { configure.execute(this) }
-    fun watchosX64(configure: Action<WatchOSTarget>) = watchosX64("watchosX64") { configure.execute(this) }
-
-    @Suppress("UNCHECKED_CAST")
-    fun tvosArm64(
-        name: String = "tvosArm64",
-        configure: TvOSTarget.() -> Unit = { }
-    ): TvOSTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("tvosArm64") as CMakeTargetFactory<TvOSTarget>,
-            configure
-        )
-
-    fun tvosArm64() = tvosArm64("tvosArm64") { }
-    fun tvosArm64(name: String) = tvosArm64(name) { }
-    fun tvosArm64(name: String, configure: Action<TvOSTarget>) = tvosArm64(name) { configure.execute(this) }
-    fun tvosArm64(configure: Action<TvOSTarget>) = tvosArm64("tvosArm64") { configure.execute(this) }
-
-    @Suppress("UNCHECKED_CAST")
-    fun tvosX64(
-        name: String = "tvosX64",
-        configure: TvOSTarget.() -> Unit = { }
-    ): TvOSTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("tvosX64") as CMakeTargetFactory<TvOSTarget>,
-            configure
-        )
-
-    fun tvosX64() = tvosX64("tvosX64") { }
-    fun tvosX64(name: String) = tvosX64(name) { }
-    fun tvosX64(name: String, configure: Action<TvOSTarget>) = tvosX64(name) { configure.execute(this) }
-    fun tvosX64(configure: Action<TvOSTarget>) = tvosX64("tvosX64") { configure.execute(this) }
-
-    @Suppress("UNCHECKED_CAST")
-    fun linuxX64(
-        name: String = "linuxX64",
-        configure: LinuxTarget.() -> Unit = { }
-    ): LinuxTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("linuxX64") as CMakeTargetFactory<LinuxTarget>,
-            configure
-        )
-
-    fun linuxX64() = linuxX64("linuxX64") { }
-    fun linuxX64(name: String) = linuxX64(name) { }
-    fun linuxX64(name: String, configure: Action<LinuxTarget>) = linuxX64(name) { configure.execute(this) }
-    fun linuxX64(configure: Action<LinuxTarget>) = linuxX64("linuxX64") { configure.execute(this) }
-
-    @Suppress("UNCHECKED_CAST")
-    fun linuxArm64(
-        name: String = "linuxArm64",
-        configure: CMakeTarget.() -> Unit = { }
-    ): CMakeTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("linuxArm64") as CMakeTargetFactory<LinuxTarget>,
-            configure
-        )
-
-    fun linuxArm64() = linuxArm64("linuxArm64") { }
-    fun linuxArm64(name: String) = linuxArm64(name) { }
-    fun linuxArm64(name: String, configure: Action<CMakeTarget>) = linuxArm64(name) { configure.execute(this) }
-
-    @Suppress("UNCHECKED_CAST")
-    fun linuxArm32Hfp(
-        name: String = "linuxArm32Hfp",
-        configure: LinuxTarget.() -> Unit = { }
-    ): LinuxTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("linuxArm32Hfp") as CMakeTargetFactory<LinuxTarget>,
-            configure
-        )
-
-    fun linuxArm32Hfp() = linuxArm32Hfp("linuxArm32Hfp") { }
-
-    fun linuxArm32Hfp(name: String) = linuxArm32Hfp(name) { }
-
-    fun linuxArm32Hfp(name: String, configure: Action<LinuxTarget>) = linuxArm32Hfp(name) { configure.execute(this) }
-
-    @Suppress("UNCHECKED_CAST")
-    fun linuxMips32(
-        name: String = "linuxMips32",
-        configure: LinuxTarget.() -> Unit = { }
-    ): LinuxTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("linuxMips32") as CMakeTargetFactory<LinuxTarget>,
-            configure
-        )
-
-    fun linuxMips32() = linuxMips32("linuxMips32") { }
-    fun linuxMips32(name: String) = linuxMips32(name) { }
-    fun linuxMips32(name: String, configure: Action<LinuxTarget>) = linuxMips32(name) { configure.execute(this) }
-
-    @Suppress("UNCHECKED_CAST")
-    fun linuxMipsel32(
-        name: String = "linuxMipsel32",
-        configure: LinuxTarget.() -> Unit = { }
-    ): LinuxTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("linuxMipsel32") as CMakeTargetFactory<LinuxTarget>,
-            configure
-        )
-
-
-    fun linuxMipsel32() = linuxMipsel32("linuxMipsel32") { }
-    fun linuxMipsel32(name: String) = linuxMipsel32(name) { }
-    fun linuxMipsel32(name: String, configure: Action<LinuxTarget>) = linuxMipsel32(name) { configure.execute(this) }
-
-    @Suppress("UNCHECKED_CAST")
-    fun msvcX86(
-        name: String = "msvcX86",
-        configure: MSVCTarget.() -> Unit = { }
-    ): MSVCTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("msvcX86") as CMakeTargetFactory<MSVCTarget>,
-            configure
-        )
-
-    fun msvcX86() = msvcX86("msvcX86") { }
-    fun msvcX86(name: String) = msvcX86(name) { }
-    fun msvcX86(name: String, configure: Action<MSVCTarget>) = msvcX86(name) { configure.execute(this) }
-    fun msvcX86(configure: Action<MSVCTarget>) = msvcX86("msvcX86") { configure.execute(this) }
-
-    @Suppress("UNCHECKED_CAST")
-    fun msvcX64(
-        name: String = "msvcX64",
-        configure: MSVCTarget.() -> Unit = { }
-    ): MSVCTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("msvcX64") as CMakeTargetFactory<MSVCTarget>,
-            configure
-        )
-
-    fun msvcX64() = msvcX64("msvcX64") { }
-    fun msvcX64(name: String) = msvcX64(name) { }
-    fun msvcX64(name: String, configure: Action<MSVCTarget>) = msvcX64(name) { configure.execute(this) }
-    fun msvcX64(configure: Action<MSVCTarget>) = msvcX64("msvcX64") { configure.execute(this) }
-
-    @Suppress("UNCHECKED_CAST")
-    fun mingwX86(
-        name: String = "mingwX86",
-        configure: MinGWTarget.() -> Unit = { }
-    ): MinGWTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("mingwX86") as CMakeTargetFactory<MinGWTarget>,
-            configure
-        )
-
-    fun mingwX86() = mingwX86("mingwX86") { }
-
-    fun mingwX86(name: String) = mingwX86(name) { }
-
-    fun mingwX86(name: String, configure: Action<MinGWTarget>) = mingwX86(name) { configure.execute(this) }
-
-    @Suppress("UNCHECKED_CAST")
-    fun mingwX64(
-        name: String = "mingwX64",
-        configure: MinGWTarget.() -> Unit = { }
-    ): MinGWTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("mingwX64") as CMakeTargetFactory<MinGWTarget>,
-            configure
-        )
-
-    fun mingwX64() = mingwX64("mingwX64") { }
-    fun mingwX64(name: String) = mingwX64(name) { }
-    fun mingwX64(name: String, configure: Action<MinGWTarget>) = mingwX64(name) { configure.execute(this) }
-
-    @Suppress("UNCHECKED_CAST")
-    fun macosX64(
-        name: String = "macosX64",
-        configure: DarwinTarget.() -> Unit = { }
-    ): DarwinTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("macosX64") as CMakeTargetFactory<DarwinTarget>,
-            configure
-        )
-
-    fun macosX64() = macosX64("macosX64") { }
-    fun macosX64(name: String) = macosX64(name) { }
-    fun macosX64(name: String, configure: Action<DarwinTarget>) = macosX64(name) { configure.execute(this) }
-
-    @Suppress("UNCHECKED_CAST")
-    fun macosArm64(
-        name: String = "macosArm64",
-        configure: DarwinTarget.() -> Unit = { }
-    ): DarwinTarget =
-        configureOrCreate(
-            name,
-            factories.getByName("macosArm64") as CMakeTargetFactory<DarwinTarget>,
-            configure
-        )
-
-    fun macosArm64() = macosArm64("macosArm64") { }
-    fun macosArm64(name: String) = macosArm64(name) { }
-    fun macosArm64(name: String, configure: Action<DarwinTarget>) = macosArm64(name) { configure.execute(this) }
+    override fun inlinedConfigureOrCreate(
+        targetName: String,
+        factoryName: String,
+        configure: T.() -> Unit
+    ): T = configureOrCreate(
+        targetName,
+        factories.getByName(factoryName) as CMakeTargetFactory<T>,
+        configure
+    )
 }
