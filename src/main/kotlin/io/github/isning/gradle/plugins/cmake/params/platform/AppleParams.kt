@@ -36,5 +36,4 @@ abstract class AbstractAppleParams : AbstractPlatformParams(), AppleParams {
 abstract class AbstractModifiableAppleParams<T : AppleEntries> : AbstractModifiablePlatformParams<T>(),
     ModifiableAppleParams<T> {
     abstract override var entries: CMakeCacheEntries?
-    override var generator: String? = "Xcode"
 }
