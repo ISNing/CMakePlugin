@@ -17,7 +17,6 @@
 package io.github.isning.gradle.plugins.cmake.params.platform
 
 import io.github.isning.gradle.plugins.cmake.params.entries.CMakeCacheEntries
-import io.github.isning.gradle.plugins.cmake.params.entries.platform.MSVCEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.MSVCEntriesImpl
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableMSVCEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableMSVCEntriesImpl
@@ -29,7 +28,7 @@ interface MSVCParams : WindowsParams, MSVCParamsProps {
     override val entries: CMakeCacheEntries?
 }
 
-interface ModifiableMSVCParams<T : MSVCEntries> : ModifiableWindowsParams<T>, MSVCParams {
+interface ModifiableMSVCParams<T : ModifiableMSVCEntries> : ModifiableWindowsParams<T>, MSVCParams {
     override var entries: CMakeCacheEntries?
 }
 

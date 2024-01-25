@@ -17,7 +17,6 @@
 package io.github.isning.gradle.plugins.cmake.params.platform
 
 import io.github.isning.gradle.plugins.cmake.params.entries.CMakeCacheEntries
-import io.github.isning.gradle.plugins.cmake.params.entries.platform.AndroidEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.AndroidEntriesImpl
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableAndroidEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableAndroidEntriesImpl
@@ -29,7 +28,7 @@ interface AndroidParams : PlatformParams, AndroidParamsProps {
     override val entries: CMakeCacheEntries?
 }
 
-interface ModifiableAndroidParams<T : AndroidEntries> : ModifiablePlatformParams<T>, AndroidParams {
+interface ModifiableAndroidParams<T : ModifiableAndroidEntries> : ModifiablePlatformParams<T>, AndroidParams {
     override var entries: CMakeCacheEntries?
 }
 

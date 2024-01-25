@@ -19,7 +19,6 @@ package io.github.isning.gradle.plugins.cmake.params.platform
 import io.github.isning.gradle.plugins.cmake.params.entries.CMakeCacheEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableTvOSEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableTvOSEntriesImpl
-import io.github.isning.gradle.plugins.cmake.params.entries.platform.TvOSEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.TvOSEntriesImpl
 import org.gradle.internal.Factory
 
@@ -29,7 +28,7 @@ interface TvOSParams : AppleParams, TvOSParamsProps {
     override val entries: CMakeCacheEntries?
 }
 
-interface ModifiableTvOSParams<T : TvOSEntries> : ModifiableAppleParams<T>, TvOSParams {
+interface ModifiableTvOSParams<T : ModifiableTvOSEntries> : ModifiableAppleParams<T>, TvOSParams {
     override var entries: CMakeCacheEntries?
 }
 

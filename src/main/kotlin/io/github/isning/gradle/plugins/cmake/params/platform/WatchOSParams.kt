@@ -19,7 +19,6 @@ package io.github.isning.gradle.plugins.cmake.params.platform
 import io.github.isning.gradle.plugins.cmake.params.entries.CMakeCacheEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableWatchOSEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableWatchOSEntriesImpl
-import io.github.isning.gradle.plugins.cmake.params.entries.platform.WatchOSEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.WatchOSEntriesImpl
 import org.gradle.internal.Factory
 
@@ -29,7 +28,7 @@ interface WatchOSParams : AppleParams, WatchOSParamsProps {
     override val entries: CMakeCacheEntries?
 }
 
-interface ModifiableWatchOSParams<T : WatchOSEntries> : ModifiableAppleParams<T>, WatchOSParams {
+interface ModifiableWatchOSParams<T : ModifiableWatchOSEntries> : ModifiableAppleParams<T>, WatchOSParams {
     override var entries: CMakeCacheEntries?
 }
 

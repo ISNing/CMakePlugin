@@ -17,7 +17,6 @@
 package io.github.isning.gradle.plugins.cmake.params.platform
 
 import io.github.isning.gradle.plugins.cmake.params.entries.CMakeCacheEntries
-import io.github.isning.gradle.plugins.cmake.params.entries.platform.DarwinEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.DarwinEntriesImpl
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableDarwinEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableDarwinEntriesImpl
@@ -29,7 +28,7 @@ interface DarwinParams : AppleParams, DarwinParamsProps {
     override val entries: CMakeCacheEntries?
 }
 
-interface ModifiableDarwinParams<T : DarwinEntries> : ModifiableAppleParams<T>, DarwinParams {
+interface ModifiableDarwinParams<T : ModifiableDarwinEntries> : ModifiableAppleParams<T>, DarwinParams {
     override var entries: CMakeCacheEntries?
 }
 

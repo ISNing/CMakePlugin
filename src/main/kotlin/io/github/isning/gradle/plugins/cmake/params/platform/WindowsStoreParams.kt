@@ -19,7 +19,6 @@ package io.github.isning.gradle.plugins.cmake.params.platform
 import io.github.isning.gradle.plugins.cmake.params.entries.CMakeCacheEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableWindowsStoreEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableWindowsStoreEntriesImpl
-import io.github.isning.gradle.plugins.cmake.params.entries.platform.WindowsStoreEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.WindowsStoreEntriesImpl
 import org.gradle.internal.Factory
 
@@ -29,7 +28,8 @@ interface WindowsStoreParams : PlatformParams, WindowsStoreParamsProps {
     override val entries: CMakeCacheEntries?
 }
 
-interface ModifiableWindowsStoreParams<T : WindowsStoreEntries> : ModifiablePlatformParams<T>, WindowsStoreParams {
+interface ModifiableWindowsStoreParams<T : ModifiableWindowsStoreEntries> : ModifiablePlatformParams<T>,
+    WindowsStoreParams {
     override var entries: CMakeCacheEntries?
 }
 

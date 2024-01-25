@@ -17,7 +17,6 @@
 package io.github.isning.gradle.plugins.cmake.params.platform
 
 import io.github.isning.gradle.plugins.cmake.params.entries.CMakeCacheEntries
-import io.github.isning.gradle.plugins.cmake.params.entries.platform.LinuxEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.LinuxEntriesImpl
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableLinuxEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableLinuxEntriesImpl
@@ -29,7 +28,7 @@ interface LinuxParams : PlatformParams, LinuxParamsProps {
     override val entries: CMakeCacheEntries?
 }
 
-interface ModifiableLinuxParams<T : LinuxEntries> : ModifiablePlatformParams<T>, LinuxParams {
+interface ModifiableLinuxParams<T : ModifiableLinuxEntries> : ModifiablePlatformParams<T>, LinuxParams {
     override var entries: CMakeCacheEntries?
 }
 

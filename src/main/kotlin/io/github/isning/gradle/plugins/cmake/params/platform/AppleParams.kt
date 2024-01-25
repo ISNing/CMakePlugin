@@ -17,7 +17,7 @@
 package io.github.isning.gradle.plugins.cmake.params.platform
 
 import io.github.isning.gradle.plugins.cmake.params.entries.CMakeCacheEntries
-import io.github.isning.gradle.plugins.cmake.params.entries.platform.AppleEntries
+import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableAppleEntries
 
 interface AppleParamsProps
 
@@ -25,7 +25,7 @@ interface AppleParams : PlatformParams, AppleParamsProps {
     override val entries: CMakeCacheEntries?
 }
 
-interface ModifiableAppleParams<T : AppleEntries> : ModifiablePlatformParams<T>, AppleParams {
+interface ModifiableAppleParams<T : ModifiableAppleEntries> : ModifiablePlatformParams<T>, AppleParams {
     override var entries: CMakeCacheEntries?
 }
 
@@ -33,7 +33,7 @@ abstract class AbstractAppleParams : AbstractPlatformParams(), AppleParams {
     abstract override val entries: CMakeCacheEntries?
 }
 
-abstract class AbstractModifiableAppleParams<T : AppleEntries> : AbstractModifiablePlatformParams<T>(),
+abstract class AbstractModifiableAppleParams<T : ModifiableAppleEntries> : AbstractModifiablePlatformParams<T>(),
     ModifiableAppleParams<T> {
     abstract override var entries: CMakeCacheEntries?
 }

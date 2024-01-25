@@ -19,7 +19,6 @@ package io.github.isning.gradle.plugins.cmake.params.platform
 import io.github.isning.gradle.plugins.cmake.params.entries.CMakeCacheEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableVisionOSEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableVisionOSEntriesImpl
-import io.github.isning.gradle.plugins.cmake.params.entries.platform.VisionOSEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.VisionOSEntriesImpl
 import org.gradle.internal.Factory
 
@@ -29,7 +28,7 @@ interface VisionOSParams : AppleParams, VisionOSParamsProps {
     override val entries: CMakeCacheEntries?
 }
 
-interface ModifiableVisionOSParams<T : VisionOSEntries> : ModifiableAppleParams<T>, VisionOSParams {
+interface ModifiableVisionOSParams<T : ModifiableVisionOSEntries> : ModifiableAppleParams<T>, VisionOSParams {
     override var entries: CMakeCacheEntries?
 }
 

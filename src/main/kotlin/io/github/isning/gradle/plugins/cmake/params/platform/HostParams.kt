@@ -17,7 +17,6 @@
 package io.github.isning.gradle.plugins.cmake.params.platform
 
 import io.github.isning.gradle.plugins.cmake.params.entries.CMakeCacheEntries
-import io.github.isning.gradle.plugins.cmake.params.entries.platform.HostEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.HostEntriesImpl
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableHostEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableHostEntriesImpl
@@ -29,7 +28,7 @@ interface HostParams : PlatformParams, HostParamsProps {
     override val entries: CMakeCacheEntries?
 }
 
-interface ModifiableHostParams<T : HostEntries> : ModifiablePlatformParams<T>, HostParams {
+interface ModifiableHostParams<T : ModifiableHostEntries> : ModifiablePlatformParams<T>, HostParams {
     override var entries: CMakeCacheEntries?
 }
 

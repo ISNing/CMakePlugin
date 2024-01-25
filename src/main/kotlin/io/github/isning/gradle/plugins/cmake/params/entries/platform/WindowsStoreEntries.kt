@@ -20,7 +20,7 @@ interface WindowsStoreEntriesProps : PlatformEntriesProps
 
 interface WindowsStoreEntries : WindowsStoreEntriesProps, PlatformEntries
 
-interface ModifiableWindowsStoreEntries : WindowsStoreEntries, PlatformEntries
+interface ModifiableWindowsStoreEntries : WindowsStoreEntries, ModifiablePlatformEntries
 
 /**
  * This class represents the Windows Store specific entries for the CMake build system.

@@ -19,7 +19,6 @@ package io.github.isning.gradle.plugins.cmake.params.platform
 import io.github.isning.gradle.plugins.cmake.params.entries.CMakeCacheEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableWindowsEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableWindowsEntriesImpl
-import io.github.isning.gradle.plugins.cmake.params.entries.platform.WindowsEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.WindowsEntriesImpl
 import org.gradle.internal.Factory
 
@@ -29,7 +28,7 @@ interface WindowsParams : PlatformParams, WindowsParamsProps {
     override val entries: CMakeCacheEntries?
 }
 
-interface ModifiableWindowsParams<T : WindowsEntries> : ModifiablePlatformParams<T>, WindowsParams {
+interface ModifiableWindowsParams<T : ModifiableWindowsEntries> : ModifiablePlatformParams<T>, WindowsParams {
     override var entries: CMakeCacheEntries?
 }
 
@@ -47,7 +46,7 @@ class ModifiableWindowsParamsImpl : AbstractModifiablePlatformParams<ModifiableW
     override val cleanEntriesFactory: Factory<ModifiableWindowsEntries> = Factory { ModifiableWindowsEntriesImpl() }
 }
 
-abstract class AbstractModifiableWindowsParams<T : WindowsEntries> : AbstractModifiablePlatformParams<T>(),
+abstract class AbstractModifiableWindowsParams<T : ModifiableWindowsEntries> : AbstractModifiablePlatformParams<T>(),
     ModifiableWindowsParams<T> {
     abstract override var entries: CMakeCacheEntries?
 }

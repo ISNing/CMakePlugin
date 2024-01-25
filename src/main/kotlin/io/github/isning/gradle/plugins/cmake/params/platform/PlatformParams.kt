@@ -22,8 +22,8 @@ import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeGeneralParams
 import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeGeneralParamsImpl
 import io.github.isning.gradle.plugins.cmake.params.entries.CMakeCacheEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.asCMakeParams
+import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiablePlatformEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiablePlatformEntriesImpl
-import io.github.isning.gradle.plugins.cmake.params.entries.platform.PlatformEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.plus
 import org.gradle.internal.Factory
 
@@ -31,7 +31,7 @@ interface PlatformParams : CMakeGeneralParams {
     val entries: CMakeCacheEntries?
 }
 
-interface ModifiablePlatformParams<T : PlatformEntries> : PlatformParams, ModifiableCMakeGeneralParams {
+interface ModifiablePlatformParams<T : ModifiablePlatformEntries> : PlatformParams, ModifiableCMakeGeneralParams {
     val cleanEntriesFactory: Factory<out T>
     override var entries: CMakeCacheEntries?
 
@@ -48,7 +48,7 @@ abstract class AbstractPlatformParams : CMakeGeneralParamsImpl(), PlatformParams
         get() = entries?.asCMakeParams?.value?.let { super.value + it } ?: super.value
 }
 
-abstract class AbstractModifiablePlatformParams<T : PlatformEntries> : ModifiableCMakeGeneralParamsImpl(),
+abstract class AbstractModifiablePlatformParams<T : ModifiablePlatformEntries> : ModifiableCMakeGeneralParamsImpl(),
     ModifiablePlatformParams<T> {
     abstract override var entries: CMakeCacheEntries?
 
@@ -59,7 +59,7 @@ abstract class AbstractModifiablePlatformParams<T : PlatformEntries> : Modifiabl
         get() = entries?.asCMakeParams?.value?.let { super.value + it } ?: super.value
 }
 
-class ModifiablePlatformParamsImpl : AbstractModifiablePlatformParams<PlatformEntries>() {
+class ModifiablePlatformParamsImpl : AbstractModifiablePlatformParams<ModifiablePlatformEntries>() {
     override var entries: CMakeCacheEntries? by recorder.observed(null)
-    override val cleanEntriesFactory: Factory<PlatformEntries> = Factory { ModifiablePlatformEntriesImpl() }
+    override val cleanEntriesFactory: Factory<ModifiablePlatformEntries> = Factory { ModifiablePlatformEntriesImpl() }
 }

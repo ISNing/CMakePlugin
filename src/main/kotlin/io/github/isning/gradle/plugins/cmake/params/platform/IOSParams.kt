@@ -17,7 +17,6 @@
 package io.github.isning.gradle.plugins.cmake.params.platform
 
 import io.github.isning.gradle.plugins.cmake.params.entries.CMakeCacheEntries
-import io.github.isning.gradle.plugins.cmake.params.entries.platform.IOSEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.IOSEntriesImpl
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableIOSEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableIOSEntriesImpl
@@ -29,7 +28,7 @@ interface IOSParams : AppleParams, IOSParamsProps {
     override val entries: CMakeCacheEntries?
 }
 
-interface ModifiableIOSParams<T : IOSEntries> : ModifiableAppleParams<T>, IOSParams {
+interface ModifiableIOSParams<T : ModifiableIOSEntries> : ModifiableAppleParams<T>, IOSParams {
     override var entries: CMakeCacheEntries?
 }
 

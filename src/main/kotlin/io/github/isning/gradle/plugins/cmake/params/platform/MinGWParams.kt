@@ -17,7 +17,6 @@
 package io.github.isning.gradle.plugins.cmake.params.platform
 
 import io.github.isning.gradle.plugins.cmake.params.entries.CMakeCacheEntries
-import io.github.isning.gradle.plugins.cmake.params.entries.platform.MinGWEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.MinGWEntriesImpl
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableMinGWEntries
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableMinGWEntriesImpl
@@ -29,7 +28,7 @@ interface MinGWParams : WindowsParams, MinGWParamsProps {
     override val entries: CMakeCacheEntries?
 }
 
-interface ModifiableMinGWParams<T : MinGWEntries> : ModifiableWindowsParams<T>, MinGWParams {
+interface ModifiableMinGWParams<T : ModifiableMinGWEntries> : ModifiableWindowsParams<T>, MinGWParams {
     override var entries: CMakeCacheEntries?
 }
 
