@@ -18,12 +18,18 @@ package io.github.isning.gradle.plugins.cmake
 
 import io.github.isning.gradle.plugins.cmake.params.buildDirForBuild
 import org.gradle.api.Task
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
+import java.io.File
 
 /**
  * Build a configured Build with CMake
  */
 open class CMakeBuildTask : AbstractCMakeExecuteTask(), Task {
+    @get:InputFile
+    val cMakeCacheFile: File
+        get() = File(buildDir, "CMakeCache.txt")
+
     @get:OutputDirectory
     val buildDir: String
         get() = configuration.parameters?.buildDirForBuild
