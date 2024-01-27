@@ -38,5 +38,5 @@ bin/
 ### Mac OS ###
 .DS_Store
 
-### Credentials ###
-credentials.properties
+### Local Properties ###
+local.properties

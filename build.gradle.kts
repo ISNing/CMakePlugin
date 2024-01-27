@@ -9,21 +9,16 @@ plugins {
 group = "io.github.isning.gradle.plugins"
 version = "0.1.0"
 
-val localPropsFile = project.rootProject.file("credentials.properties")
-if (localPropsFile.exists()) {
-    val properties = Properties().apply { load(localPropsFile.reader()) }
-    if (properties.isNotEmpty()) {
-        properties.onEach { (key, value) ->
-            ext[key.toString()] = value
-        }
-    }
+Properties().apply {
+    rootProject.file("local.properties").takeIf { it.exists() && it.isFile }?.let { load(it.reader()) }
+}.onEach { (key, value) ->
+    if (key is String) ext[key] = value
 }
 
 if (!ext.has("gradle.publish.key")) ext["gradle.publish.key"] =
     System.getenv("GRADLE_PUBLISH_KEY")
 if (!ext.has("gradle.publish.secret")) ext["gradle.publish.secret"] =
     System.getenv("GRADLE_PUBLISH_SECRET")
-
 
 repositories {
     mavenCentral()
