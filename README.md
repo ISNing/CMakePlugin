@@ -13,7 +13,7 @@ If you have feature requests or find bugs, please create an issue.
 
 ```kotlin
 plugins {
-    id("io.github.isning.gradle.plugins.cmake") version "1.0.0"
+  id("io.github.isning.gradle.plugins.cmake") version "0.1.1"
 }
 ```
 
