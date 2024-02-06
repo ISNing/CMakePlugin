@@ -216,6 +216,15 @@ open class CMakeTargetImpl<C : ModifiableCMakeGeneralParams, B : ModifiableCMake
     )
 }
 
+fun ModifiableCMakeTarget<*, *>.autoProperties(project: Project) {
+    autoSysRoot(project)
+}
+
+fun ModifiableCMakeTarget<*, *>.autoSysRoot(project: Project) {
+    if (project.properties.containsKey("$targetName.sysRoot"))
+        setSysRoot(project.properties["$targetName.sysRoot"] as String)
+}
+
 fun ModifiableCMakeTarget<*, *>.useZigC() {
     configParams += (ModifiableCEntriesImpl().apply {
         compiler = "zig;cc"

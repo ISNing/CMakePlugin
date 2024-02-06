@@ -28,6 +28,12 @@ fun <T : CMakeTarget> (Pair<String, (String) -> T?>).factory(configure: T.() -> 
 
 interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWithPresetFunctions {
     fun registerFactories(project: Project, inheritedParents: List<CMakeConfiguration>, inheritedNames: List<String>) {
+        fun <T : ModifiableCMakeTarget<*, *>> (Pair<String, (String) -> T?>).autoFactory(configure: T.() -> Unit):
+                CMakeTargetFactory<T> = factory {
+            autoProperties(project)
+            configure()
+        }
+
         fun String.hostFactory(configure: HostTarget.() -> Unit): CMakeTargetFactory<HostTarget> =
             (this to { name: String ->
                 HostTarget(
@@ -36,7 +42,7 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
                     inheritedParents,
                     inheritedNames
                 )
-            }).factory(configure)
+            }).autoFactory(configure)
 
         fun String.androidFactory(configure: AndroidTarget.() -> Unit): CMakeTargetFactory<AndroidTarget> =
             (this to { name: String ->
@@ -46,7 +52,7 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
                     inheritedParents,
                     inheritedNames
                 )
-            }).factory(configure)
+            }).autoFactory(configure)
 
         fun String.iosFactory(configure: IOSTarget.() -> Unit): CMakeTargetFactory<IOSTarget> =
             (this to { name: String ->
@@ -56,7 +62,7 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
                     inheritedParents,
                     inheritedNames
                 )
-            }).factory(configure)
+            }).autoFactory(configure)
 
         fun String.watchosFactory(configure: WatchOSTarget.() -> Unit): CMakeTargetFactory<WatchOSTarget> =
             (this to { name: String ->
@@ -66,7 +72,7 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
                     inheritedParents,
                     inheritedNames
                 )
-            }).factory(configure)
+            }).autoFactory(configure)
 
         fun String.tvosFactory(configure: TvOSTarget.() -> Unit): CMakeTargetFactory<TvOSTarget> =
             (this to { name: String ->
@@ -76,7 +82,7 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
                     inheritedParents,
                     inheritedNames
                 )
-            }).factory(configure)
+            }).autoFactory(configure)
 
         fun String.linuxFactory(configure: LinuxTarget.() -> Unit): CMakeTargetFactory<LinuxTarget> =
             (this to { name: String ->
@@ -86,7 +92,7 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
                     inheritedParents,
                     inheritedNames
                 )
-            }).factory(configure)
+            }).autoFactory(configure)
 
         fun String.msvcFactory(configure: MSVCTarget.() -> Unit): CMakeTargetFactory<MSVCTarget> =
             (this to { name: String ->
@@ -96,7 +102,7 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
                     inheritedParents,
                     inheritedNames
                 )
-            }).factory(configure)
+            }).autoFactory(configure)
 
         fun String.mingwFactory(configure: MinGWTarget.() -> Unit): CMakeTargetFactory<MinGWTarget> =
             (this to { name: String ->
@@ -106,7 +112,7 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
                     inheritedParents,
                     inheritedNames
                 )
-            }).factory(configure)
+            }).autoFactory(configure)
 
         fun String.darwinFactory(configure: DarwinTarget.() -> Unit): CMakeTargetFactory<DarwinTarget> =
             (this to { name: String ->
@@ -116,7 +122,7 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
                     inheritedParents,
                     inheritedNames
                 )
-            }).factory(configure)
+            }).autoFactory(configure)
 
         fun AndroidTarget.configNdk(abi: String) {
             configParams {
