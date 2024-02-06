@@ -77,6 +77,7 @@ For some properties, instead of define them in the build script, you can also de
 
 | Property Name          | Used for                                            |
 |------------------------|-----------------------------------------------------|
+| `ndk.dir`              | Path to Android NDK (Only used for android targets) |
 | `{targetName}.sysRoot` | Will be taken as the value of `CMAKE_SYSROOT`       |
 
 ## Auto-created tasks
