@@ -72,6 +72,13 @@ And for all the properties, there are several stub strings that will be replaced
 | `{projectName}`       | The name of the project    |
 | `{targetName}`        | The name of the target     |
 
+For some properties, instead of define them in the build script, you can also define them in a file like
+`local.properties` file in the root of the project, and read them into project extra properties.
+
+| Property Name          | Used for                                            |
+|------------------------|-----------------------------------------------------|
+| `{targetName}.sysRoot` | Will be taken as the value of `CMAKE_SYSROOT`       |
+
 ## Auto-created tasks
 
 * *cmakeConfigure`${projectName}${targetName}`*: Calls CMake to generate build scripts for the specified target.
