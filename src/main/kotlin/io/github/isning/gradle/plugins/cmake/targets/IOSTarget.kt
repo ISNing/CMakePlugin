@@ -17,7 +17,9 @@
 package io.github.isning.gradle.plugins.cmake.targets
 
 import io.github.isning.gradle.plugins.cmake.CMakeConfiguration
+import io.github.isning.gradle.plugins.cmake.params.emptyCMakeParams
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableIOSEntries
+import io.github.isning.gradle.plugins.cmake.params.platform.IOSParamsImpl
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableIOSParams
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableIOSParamsImpl
 import org.gradle.api.Project
@@ -27,9 +29,13 @@ class IOSTarget(
     project: Project,
     name: String,
     inheritedParents: List<CMakeConfiguration>,
-    inheritedNames: List<String>
+    inheritedNames: List<String>,
 ) :
-    AbstractAppleTarget<ModifiableIOSParams<ModifiableIOSEntries>>(project, name, inheritedParents, inheritedNames) {
+    AbstractAppleTarget<ModifiableIOSParams<ModifiableIOSEntries>>(
+        project, name, inheritedParents, inheritedNames,
+        { emptyCMakeParams() },
+        { IOSParamsImpl() }
+    ) {
     override val cleanConfigParamsFactory: Factory<ModifiableIOSParams<ModifiableIOSEntries>> = Factory {
         ModifiableIOSParamsImpl()
     }

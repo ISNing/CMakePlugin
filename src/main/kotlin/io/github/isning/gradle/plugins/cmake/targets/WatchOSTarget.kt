@@ -17,9 +17,11 @@
 package io.github.isning.gradle.plugins.cmake.targets
 
 import io.github.isning.gradle.plugins.cmake.CMakeConfiguration
+import io.github.isning.gradle.plugins.cmake.params.emptyCMakeParams
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableWatchOSEntries
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableWatchOSParams
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableWatchOSParamsImpl
+import io.github.isning.gradle.plugins.cmake.params.platform.WatchOSParamsImpl
 import org.gradle.api.Project
 import org.gradle.internal.Factory
 
@@ -30,10 +32,9 @@ class WatchOSTarget(
     inheritedNames: List<String>
 ) :
     AbstractAppleTarget<ModifiableWatchOSParams<ModifiableWatchOSEntries>>(
-        project,
-        name,
-        inheritedParents,
-        inheritedNames
+        project, name, inheritedParents, inheritedNames,
+        { emptyCMakeParams() },
+        { WatchOSParamsImpl() }
     ) {
     override val cleanConfigParamsFactory: Factory<ModifiableWatchOSParams<ModifiableWatchOSEntries>> = Factory {
         ModifiableWatchOSParamsImpl()

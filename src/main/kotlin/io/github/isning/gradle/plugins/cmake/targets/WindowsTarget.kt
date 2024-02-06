@@ -19,11 +19,14 @@ package io.github.isning.gradle.plugins.cmake.targets
 import io.github.isning.gradle.plugins.cmake.AbstractCMakeTarget
 import io.github.isning.gradle.plugins.cmake.CMakeConfiguration
 import io.github.isning.gradle.plugins.cmake.CMakeTargetImpl
+import io.github.isning.gradle.plugins.cmake.params.CMakeParams
 import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeBuildParams
 import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeBuildParamsImpl
+import io.github.isning.gradle.plugins.cmake.params.emptyCMakeParams
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableWindowsEntries
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableWindowsParams
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableWindowsParamsImpl
+import io.github.isning.gradle.plugins.cmake.params.platform.WindowsParamsImpl
 import org.gradle.api.Project
 import org.gradle.internal.Factory
 
@@ -33,24 +36,31 @@ class WindowsTargetImpl(
     project: Project,
     name: String,
     inheritedParents: List<CMakeConfiguration>,
-    inheritedNames: List<String>
+    inheritedNames: List<String>,
+    buildParamsInitialOverlayProvider: () -> CMakeParams? = { null },
+    configParamsInitialOverlayProvider: () -> CMakeParams? = { null },
 ) :
-    CMakeTargetImpl<ModifiableWindowsParams<ModifiableWindowsEntries>, ModifiableCMakeBuildParams>(project, name,
-        inheritedParents, inheritedNames,
-        {
-            ModifiableWindowsParamsImpl()
-        }, {
-            ModifiableCMakeBuildParamsImpl()
-        }), WindowsTarget
+    CMakeTargetImpl<ModifiableWindowsParams<ModifiableWindowsEntries>, ModifiableCMakeBuildParams>(
+        project, name, inheritedParents, inheritedNames,
+        { ModifiableWindowsParamsImpl() },
+        { ModifiableCMakeBuildParamsImpl() },
+        { emptyCMakeParams() },
+        { WindowsParamsImpl() },
+    ), WindowsTarget
 
 
 abstract class AbstractWindowsTarget<T : ModifiableWindowsParams<*>>(
     project: Project,
     name: String,
     inheritedParents: List<CMakeConfiguration>,
-    inheritedNames: List<String>
+    inheritedNames: List<String>,
+    buildParamsInitialOverlayProvider: () -> CMakeParams? = { null },
+    configParamsInitialOverlayProvider: () -> CMakeParams? = { null },
 ) :
-    AbstractCMakeTarget<T, ModifiableCMakeBuildParams>(project, name, inheritedParents, inheritedNames), WindowsTarget {
+    AbstractCMakeTarget<T, ModifiableCMakeBuildParams>(
+        project, name, inheritedParents, inheritedNames,
+        buildParamsInitialOverlayProvider, configParamsInitialOverlayProvider
+    ), WindowsTarget {
     override val cleanBuildParamsFactory: Factory<ModifiableCMakeBuildParams> = Factory {
         ModifiableCMakeBuildParamsImpl()
     }

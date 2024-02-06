@@ -17,7 +17,9 @@
 package io.github.isning.gradle.plugins.cmake.targets
 
 import io.github.isning.gradle.plugins.cmake.CMakeConfiguration
+import io.github.isning.gradle.plugins.cmake.params.emptyCMakeParams
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableMSVCEntries
+import io.github.isning.gradle.plugins.cmake.params.platform.MSVCParamsImpl
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableMSVCParams
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableMSVCParamsImpl
 import org.gradle.api.Project
@@ -30,10 +32,9 @@ class MSVCTarget(
     inheritedNames: List<String>
 ) :
     AbstractWindowsTarget<ModifiableMSVCParams<ModifiableMSVCEntries>>(
-        project,
-        name,
-        inheritedParents,
-        inheritedNames
+        project, name, inheritedParents, inheritedNames,
+        { emptyCMakeParams() },
+        { MSVCParamsImpl() },
     ) {
     override val cleanConfigParamsFactory: Factory<ModifiableMSVCParams<ModifiableMSVCEntries>> = Factory {
         ModifiableMSVCParamsImpl()

@@ -20,7 +20,9 @@ import io.github.isning.gradle.plugins.cmake.CMakeConfiguration
 import io.github.isning.gradle.plugins.cmake.CMakeTargetImpl
 import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeBuildParams
 import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeBuildParamsImpl
+import io.github.isning.gradle.plugins.cmake.params.emptyCMakeParams
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableLinuxEntries
+import io.github.isning.gradle.plugins.cmake.params.platform.LinuxParamsImpl
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableLinuxParams
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableLinuxParamsImpl
 import org.gradle.api.Project
@@ -32,12 +34,9 @@ class LinuxTarget(
     inheritedNames: List<String>
 ) :
     CMakeTargetImpl<ModifiableLinuxParams<ModifiableLinuxEntries>, ModifiableCMakeBuildParams>(
-        project,
-        name,
-        inheritedParents,
-        inheritedNames,
-        {
-        ModifiableLinuxParamsImpl()
-    }, {
-        ModifiableCMakeBuildParamsImpl()
-    })
+        project, name, inheritedParents, inheritedNames,
+        { ModifiableLinuxParamsImpl() },
+        { ModifiableCMakeBuildParamsImpl() },
+        { emptyCMakeParams() },
+        { LinuxParamsImpl() },
+    )

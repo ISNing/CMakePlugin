@@ -20,6 +20,7 @@ import io.github.isning.gradle.plugins.cmake.CMakeConfiguration
 import io.github.isning.gradle.plugins.cmake.CMakeTargetImpl
 import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeBuildParams
 import io.github.isning.gradle.plugins.cmake.params.ModifiableCMakeBuildParamsImpl
+import io.github.isning.gradle.plugins.cmake.params.emptyCMakeParams
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableAndroidEntries
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableAndroidParams
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableAndroidParamsImpl
@@ -32,15 +33,13 @@ class AndroidTarget(
     inheritedNames: List<String>
 ) :
     CMakeTargetImpl<ModifiableAndroidParams<ModifiableAndroidEntries>, ModifiableCMakeBuildParams>(
-        project,
-        name,
-        inheritedParents,
-        inheritedNames,
+        project, name, inheritedParents, inheritedNames,
+        { ModifiableAndroidParamsImpl() },
+        { ModifiableCMakeBuildParamsImpl() },
+        { emptyCMakeParams() },
         {
             ModifiableAndroidParamsImpl().apply {
                 System.getenv("NDK_HOME")?.let { entries { ndk = it } }
                 (project.properties["ndk.dir"] as? String)?.let { entries { ndk = it } }
             }
-    }, {
-        ModifiableCMakeBuildParamsImpl()
-    })
+        })
