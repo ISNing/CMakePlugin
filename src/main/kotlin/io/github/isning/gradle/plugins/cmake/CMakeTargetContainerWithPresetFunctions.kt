@@ -64,6 +64,16 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
                 )
             }).autoFactory(configure)
 
+        fun String.iosSimulatorFactory(configure: IOSSimulatorTarget.() -> Unit): CMakeTargetFactory<IOSSimulatorTarget> =
+            (this to { name: String ->
+                IOSSimulatorTarget(
+                    project,
+                    name,
+                    inheritedParents,
+                    inheritedNames
+                )
+            }).autoFactory(configure)
+
         fun String.watchosFactory(configure: WatchOSTarget.() -> Unit): CMakeTargetFactory<WatchOSTarget> =
             (this to { name: String ->
                 WatchOSTarget(
@@ -74,9 +84,29 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
                 )
             }).autoFactory(configure)
 
+        fun String.watchosSimulatorFactory(configure: WatchOSSimulatorTarget.() -> Unit): CMakeTargetFactory<WatchOSSimulatorTarget> =
+            (this to { name: String ->
+                WatchOSSimulatorTarget(
+                    project,
+                    name,
+                    inheritedParents,
+                    inheritedNames
+                )
+            }).autoFactory(configure)
+
         fun String.tvosFactory(configure: TvOSTarget.() -> Unit): CMakeTargetFactory<TvOSTarget> =
             (this to { name: String ->
                 TvOSTarget(
+                    project,
+                    name,
+                    inheritedParents,
+                    inheritedNames
+                )
+            }).autoFactory(configure)
+
+        fun String.tvosSimulatorFactory(configure: TvOSSimulatorTarget.() -> Unit): CMakeTargetFactory<TvOSSimulatorTarget> =
+            (this to { name: String ->
+                TvOSSimulatorTarget(
                     project,
                     name,
                     inheritedParents,
@@ -200,6 +230,9 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
         factories.add("ios".iosFactory { })
         factories.add("watchos".watchosFactory { })
         factories.add("tvos".tvosFactory { })
+        factories.add("iosSimulator".iosSimulatorFactory { })
+        factories.add("watchosSimulator".watchosSimulatorFactory { })
+        factories.add("tvosSimulator".tvosSimulatorFactory { })
 
         factories.add("iosArm32.xcode".iosFactory {
             configXcode("armv7")
@@ -207,7 +240,10 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
         factories.add("iosArm64.xcode".iosFactory {
             configXcode("arm64")
         })
-        factories.add("iosX64.xcode".iosFactory {
+        factories.add("iosSimulatorArm64.xcode".iosSimulatorFactory {
+            configXcode("arm64")
+        })
+        factories.add("iosSimulatorX64.xcode".iosSimulatorFactory {
             configXcode("x86_64")
         })
         factories.add("watchosArm32.xcode".watchosFactory {
@@ -216,16 +252,19 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
         factories.add("watchosArm64.xcode".watchosFactory {
             configXcode("arm64_32")
         })
-        factories.add("watchosX86.xcode".watchosFactory {
-            configXcode("i386")
+        factories.add("watchosSimulatorArm64.xcode".watchosSimulatorFactory {
+            configXcode("arm64")
         })
-        factories.add("watchosX64.xcode".watchosFactory {
+        factories.add("watchosSimulatorX64.xcode".watchosSimulatorFactory {
             configXcode("x86_64")
         })
         factories.add("tvosArm64.xcode".tvosFactory {
             configXcode("arm64")
         })
-        factories.add("tvosX64.xcode".tvosFactory {
+        factories.add("tvosSimulatorArm64.xcode".tvosSimulatorFactory {
+            configXcode("arm64")
+        })
+        factories.add("tvosSimulatorX64.xcode".tvosSimulatorFactory {
             configXcode("x86_64")
         })
 
@@ -233,9 +272,12 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
             targetToWithClang("armv7-ios-none")
         })
         factories.add("iosArm64.clang".iosFactory {
-            targetToWithClang("aaarch64-ios-none")
+            targetToWithClang("aarch64-ios-none")
         })
-        factories.add("iosX64.clang".iosFactory {
+        factories.add("iosSimulatorArm64.clang".iosSimulatorFactory {
+            targetToWithClang("aarch64-ios-none")
+        })
+        factories.add("iosSimulatorX64.clang".iosSimulatorFactory {
             targetToWithClang("x86_64-ios-none")
         })
         factories.add("watchosArm32.clang".watchosFactory {
@@ -244,20 +286,21 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
         factories.add("watchosArm64.clang".watchosFactory {
             targetToWithClang("arm64_32-watchos-none")
         })
-        factories.add("watchosX86.clang".watchosFactory {
-            targetToWithClang("i386-watchos-none")
+        factories.add("watchosSimulatorArm64.clang".watchosSimulatorFactory {
+            targetToWithClang("aarch64-watchos-none")
         })
-        factories.add("watchosX64.clang".watchosFactory {
+        factories.add("watchosSimulatorX64.clang".watchosSimulatorFactory {
             targetToWithClang("x86_64-watchos-none")
         })
         factories.add("tvosArm64.clang".tvosFactory {
             targetToWithClang("aarch64-tvos-none")
         })
-        factories.add("tvosX64.clang".tvosFactory {
+        factories.add("tvosSimulatorArm64.clang".tvosSimulatorFactory {
+            targetToWithClang("aarch64-tvos-none")
+        })
+        factories.add("tvosSimulatorX64.clang".tvosSimulatorFactory {
             targetToWithClang("x86_64-tvos-none")
         })
-
-
 
         factories.add("iosArm32.zig".iosFactory {
             targetToWithZig("armv7-ios-none")
@@ -265,25 +308,31 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
         factories.add("iosArm64.zig".iosFactory {
             targetToWithZig("aarch64-ios-none")
         })
-        factories.add("iosX64.zig".iosFactory {
+        factories.add("iosSimulatorArm64.zig".iosSimulatorFactory {
+            targetToWithZig("aarch64-ios-none")
+        })
+        factories.add("iosSimulatorX64.zig".iosSimulatorFactory {
             targetToWithZig("x86_64-ios-none")
         })
         factories.add("watchosArm32.zig".watchosFactory {
             targetToWithZig("armv7k-watchos-none")
         })
         factories.add("watchosArm64.zig".watchosFactory {
-            targetToWithZig("aarch64_32-watchos-none")
+            targetToWithZig("arm64_32-watchos-none")
         })
-        factories.add("watchosX86.zig".watchosFactory {
-            targetToWithZig("i386-watchos-none")
+        factories.add("watchosSimulatorArm64.zig".watchosSimulatorFactory {
+            targetToWithZig("aarch64-watchos-none")
         })
-        factories.add("watchosX64.zig".watchosFactory {
+        factories.add("watchosSimulatorX64.zig".watchosSimulatorFactory {
             targetToWithZig("x86_64-watchos-none")
         })
         factories.add("tvosArm64.zig".tvosFactory {
             targetToWithZig("aarch64-tvos-none")
         })
-        factories.add("tvosX64.zig".tvosFactory {
+        factories.add("tvosSimulatorArm64.zig".tvosSimulatorFactory {
+            targetToWithZig("aarch64-tvos-none")
+        })
+        factories.add("tvosSimulatorX64.zig".tvosSimulatorFactory {
             targetToWithZig("x86_64-tvos-none")
         })
 
@@ -426,30 +475,40 @@ interface CMakeTargetContainerWithPresetFunctions : CMakeTargetContainerWithFact
 
     val ios
         get() = default<IOSTarget>("ios")
+    val iosSimulator
+        get() = default<IOSSimulatorTarget>("iosSimulator")
     val iosArm32
         get() = xcodeWithClangWithZig<IOSTarget>("iosArm32")
     val iosArm64
         get() = xcodeWithClangWithZig<IOSTarget>("iosArm64")
-    val iosX64
-        get() = xcodeWithClangWithZig<IOSTarget>("iosX64")
+    val iosSimulatorArm64
+        get() = xcodeWithClangWithZig<IOSSimulatorTarget>("iosSimulatorArm64")
+    val iosSimulatorX64
+        get() = xcodeWithClangWithZig<IOSSimulatorTarget>("iosSimulatorX64")
 
     val watchos
         get() = default<WatchOSTarget>("watchos")
+    val watchosSimulator
+        get() = default<WatchOSSimulatorTarget>("watchosSimulator")
     val watchosArm32
         get() = xcodeWithClangWithZig<WatchOSTarget>("watchosArm32")
     val watchosArm64
         get() = xcodeWithClangWithZig<WatchOSTarget>("watchosArm64")
-    val watchosX86
-        get() = xcodeWithClangWithZig<WatchOSTarget>("watchosX86")
-    val watchosX64
-        get() = xcodeWithClangWithZig<WatchOSTarget>("watchosX64")
+    val watchosSimulatorArm64
+        get() = xcodeWithClangWithZig<WatchOSSimulatorTarget>("watchosSimulatorArm64")
+    val watchosSimulatorX64
+        get() = xcodeWithClangWithZig<WatchOSSimulatorTarget>("watchosSimulatorX64")
 
     val tvos
         get() = default<TvOSTarget>("tvos")
+    val tvosSimulator
+        get() = default<TvOSSimulatorTarget>("tvosSimulator")
     val tvosArm64
         get() = xcodeWithClangWithZig<TvOSTarget>("tvosArm64")
-    val tvosX64
-        get() = xcodeWithClangWithZig<TvOSTarget>("tvosX64")
+    val tvosSimulatorArm64
+        get() = xcodeWithClangWithZig<TvOSSimulatorTarget>("tvosSimulatorArm64")
+    val tvosSimulatorX64
+        get() = xcodeWithClangWithZig<TvOSSimulatorTarget>("tvosSimulatorX64")
 
     val linux
         get() = default<LinuxTarget>("linux")
