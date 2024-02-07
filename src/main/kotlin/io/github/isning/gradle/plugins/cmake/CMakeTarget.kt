@@ -218,11 +218,23 @@ open class CMakeTargetImpl<C : ModifiableCMakeGeneralParams, B : ModifiableCMake
 
 fun ModifiableCMakeTarget<*, *>.autoProperties(project: Project) {
     autoSysRoot(project)
+    autoGccInstallDir(project)
+    autoGccToolchain(project)
 }
 
 fun ModifiableCMakeTarget<*, *>.autoSysRoot(project: Project) {
     if (project.properties.containsKey("$targetName.sysRoot"))
         setSysRoot(project.properties["$targetName.sysRoot"] as String)
+}
+
+fun ModifiableCMakeTarget<*, *>.autoGccInstallDir(project: Project) {
+    if (project.properties.containsKey("$targetName.gccInstallDir"))
+        setGccInstallDir(project.properties["$targetName.gccInstallDir"] as String)
+}
+
+fun ModifiableCMakeTarget<*, *>.autoGccToolchain(project: Project) {
+    if (project.properties.containsKey("$targetName.gccToolchain"))
+        setGccToolchain(project.properties["$targetName.gccToolchain"] as String)
 }
 
 fun ModifiableCMakeTarget<*, *>.useZigC() {
@@ -251,6 +263,34 @@ fun ModifiableCMakeTarget<*, *>.setCompilerTarget(target: String?) {
 
 fun ModifiableCMakeTarget<*, *>.setSysRoot(sysRoot: String) {
     configParams += CustomCMakeCacheEntries(mapOf("CMAKE_SYSROOT" to sysRoot)).asCMakeParams
+}
+
+/**
+ * Set the path to the GCC install directory.
+ * Only for Clang.
+ *
+ * For more information, see: [Clang Document](https://clang.llvm.org/docs/ClangCommandLineReference.html#cmdoption-clang-gcc-install-dir)
+ */
+fun ModifiableCMakeTarget<*, *>.setGccInstallDir(path: String) {
+    configParams += (ModifiableCEntriesImpl().apply {
+        flags = "--gcc-install-dir=$path"
+    } + ModifiableCXXEntriesImpl().apply {
+        flags = "--gcc-install-dir=$path"
+    }).asCMakeParams
+}
+
+/**
+ * Set the path to the GCC toolchain directory.
+ * Only for Clang.
+ *
+ * For more information, see: [Clang Document](https://clang.llvm.org/docs/ClangCommandLineReference.html#cmdoption-clang-gcc-toolchain)
+ */
+fun ModifiableCMakeTarget<*, *>.setGccToolchain(path: String) {
+    configParams += (ModifiableCEntriesImpl().apply {
+        flags = "--gcc-toolchain=$path"
+    } + ModifiableCXXEntriesImpl().apply {
+        flags = "--gcc-toolchain=$path"
+    }).asCMakeParams
 }
 
 fun ModifiableCMakeTarget<*, *>.forceUseLld() {
