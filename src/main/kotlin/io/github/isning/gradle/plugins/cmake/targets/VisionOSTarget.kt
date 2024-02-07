@@ -17,26 +17,41 @@
 package io.github.isning.gradle.plugins.cmake.targets
 
 import io.github.isning.gradle.plugins.cmake.CMakeConfiguration
+import io.github.isning.gradle.plugins.cmake.params.CMakeParams
 import io.github.isning.gradle.plugins.cmake.params.emptyCMakeParams
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableVisionOSEntries
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableVisionOSParams
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableVisionOSParamsImpl
 import io.github.isning.gradle.plugins.cmake.params.platform.VisionOSParamsImpl
+import io.github.isning.gradle.plugins.cmake.params.plus
 import org.gradle.api.Project
 import org.gradle.internal.Factory
 
-class VisionOSTarget(
+open class VisionOSTarget(
     project: Project,
     name: String,
     inheritedParents: List<CMakeConfiguration>,
-    inheritedNames: List<String>
+    inheritedNames: List<String>,
+    buildParamsInitialOverlayProvider: () -> CMakeParams? = { null },
+    configParamsInitialOverlayProvider: () -> CMakeParams? = { null },
 ) :
     AbstractAppleTarget<ModifiableVisionOSParams<ModifiableVisionOSEntries>>(
         project, name, inheritedParents, inheritedNames,
-        { emptyCMakeParams() },
-        { VisionOSParamsImpl() }
+        { emptyCMakeParams() + buildParamsInitialOverlayProvider() },
+        { VisionOSParamsImpl() + configParamsInitialOverlayProvider() }
     ) {
     override val cleanConfigParamsFactory: Factory<ModifiableVisionOSParams<ModifiableVisionOSEntries>> = Factory {
         ModifiableVisionOSParamsImpl()
     }
 }
+
+class VisionOSSimulatorTarget(
+    project: Project,
+    name: String,
+    inheritedParents: List<CMakeConfiguration>,
+    inheritedNames: List<String>,
+) : VisionOSTarget(project, name, inheritedParents, inheritedNames, { emptyCMakeParams() }, {
+    ModifiableVisionOSParamsImpl().apply {
+        entries { osxSysroot = "xrsimulator" }
+    }
+})

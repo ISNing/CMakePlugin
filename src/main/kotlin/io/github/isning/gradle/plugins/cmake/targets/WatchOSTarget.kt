@@ -17,26 +17,41 @@
 package io.github.isning.gradle.plugins.cmake.targets
 
 import io.github.isning.gradle.plugins.cmake.CMakeConfiguration
+import io.github.isning.gradle.plugins.cmake.params.CMakeParams
 import io.github.isning.gradle.plugins.cmake.params.emptyCMakeParams
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableWatchOSEntries
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableWatchOSParams
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableWatchOSParamsImpl
 import io.github.isning.gradle.plugins.cmake.params.platform.WatchOSParamsImpl
+import io.github.isning.gradle.plugins.cmake.params.plus
 import org.gradle.api.Project
 import org.gradle.internal.Factory
 
-class WatchOSTarget(
+open class WatchOSTarget(
     project: Project,
     name: String,
     inheritedParents: List<CMakeConfiguration>,
-    inheritedNames: List<String>
+    inheritedNames: List<String>,
+    buildParamsInitialOverlayProvider: () -> CMakeParams? = { null },
+    configParamsInitialOverlayProvider: () -> CMakeParams? = { null },
 ) :
     AbstractAppleTarget<ModifiableWatchOSParams<ModifiableWatchOSEntries>>(
         project, name, inheritedParents, inheritedNames,
-        { emptyCMakeParams() },
-        { WatchOSParamsImpl() }
+        { emptyCMakeParams() + buildParamsInitialOverlayProvider() },
+        { WatchOSParamsImpl() + configParamsInitialOverlayProvider() }
     ) {
     override val cleanConfigParamsFactory: Factory<ModifiableWatchOSParams<ModifiableWatchOSEntries>> = Factory {
         ModifiableWatchOSParamsImpl()
     }
 }
+
+class WatchOSSimulatorTarget(
+    project: Project,
+    name: String,
+    inheritedParents: List<CMakeConfiguration>,
+    inheritedNames: List<String>,
+) : WatchOSTarget(project, name, inheritedParents, inheritedNames, { emptyCMakeParams() }, {
+    ModifiableWatchOSParamsImpl().apply {
+        entries { osxSysroot = "watchsimulator" }
+    }
+})

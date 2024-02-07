@@ -17,26 +17,41 @@
 package io.github.isning.gradle.plugins.cmake.targets
 
 import io.github.isning.gradle.plugins.cmake.CMakeConfiguration
+import io.github.isning.gradle.plugins.cmake.params.CMakeParams
 import io.github.isning.gradle.plugins.cmake.params.emptyCMakeParams
 import io.github.isning.gradle.plugins.cmake.params.entries.platform.ModifiableIOSEntries
 import io.github.isning.gradle.plugins.cmake.params.platform.IOSParamsImpl
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableIOSParams
 import io.github.isning.gradle.plugins.cmake.params.platform.ModifiableIOSParamsImpl
+import io.github.isning.gradle.plugins.cmake.params.plus
 import org.gradle.api.Project
 import org.gradle.internal.Factory
 
-class IOSTarget(
+open class IOSTarget(
     project: Project,
     name: String,
     inheritedParents: List<CMakeConfiguration>,
     inheritedNames: List<String>,
+    buildParamsInitialOverlayProvider: () -> CMakeParams? = { null },
+    configParamsInitialOverlayProvider: () -> CMakeParams? = { null },
 ) :
     AbstractAppleTarget<ModifiableIOSParams<ModifiableIOSEntries>>(
         project, name, inheritedParents, inheritedNames,
-        { emptyCMakeParams() },
-        { IOSParamsImpl() }
+        { emptyCMakeParams() + buildParamsInitialOverlayProvider() },
+        { IOSParamsImpl() + configParamsInitialOverlayProvider() }
     ) {
     override val cleanConfigParamsFactory: Factory<ModifiableIOSParams<ModifiableIOSEntries>> = Factory {
         ModifiableIOSParamsImpl()
     }
 }
+
+class IOSSimulatorTarget(
+    project: Project,
+    name: String,
+    inheritedParents: List<CMakeConfiguration>,
+    inheritedNames: List<String>,
+) : IOSTarget(project, name, inheritedParents, inheritedNames, { emptyCMakeParams() }, {
+    ModifiableIOSParamsImpl().apply {
+        entries { osxSysroot = "iphonesimulator" }
+    }
+})
