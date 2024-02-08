@@ -18,17 +18,20 @@ package io.github.isning.gradle.plugins.cmake.utils
 
 import org.apache.commons.text.StringEscapeUtils
 
-fun List<String>.findParameterValue(startWith: String): String? =
+fun List<String>.findParameterValue(startWith: String): String? = findParameterValues(startWith).lastOrNull()
+
+fun List<String>.findParameterValues(startWith: String): List<String> =
     this.splitByParameterPattern().let { split ->
-        split.indexOfFirst { it.startsWith(startWith) }.let {
-            if (it == -1) null
-            else split.getOrNull(it + 1)
+        split.indices.filter { split[it].startsWith(startWith) }.mapNotNull {
+            split.getOrNull(it + 1)
         }
     }
 
+fun String.splitByWhiteSpaceRespectingQuotes(): List<String> =
+    splitBy("""('[^'\\]*(?:\\.[^'\\]*)*')|("[^"\\]*(?:\\.[^"\\]*)*")|(\S+)""".toRegex())
 
 fun String.splitByParameterPattern(): List<String> =
-    splitBy("""('[^'\\]*(?:\\.[^'\\]*)*')|("[^"\\]*(?:\\.[^"\\]*)*")|(\S+)""".toRegex())
+    splitByWhiteSpaceRespectingQuotes()
         .flatBy("""(^-\w)\s*(.*${'$'})|(^--\w+${'$'})|(^[^-].*${'$'})""".toRegex()).unWarpQuotes()
 
 fun String.splitBy(regex: Regex): List<String> =
