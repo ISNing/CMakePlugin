@@ -39,7 +39,6 @@ class AndroidTarget(
         { emptyCMakeParams() },
         {
             ModifiableAndroidParamsImpl().apply {
-                System.getenv("NDK_HOME")?.let { entries { ndk = it } }
                 (project.properties["ndk.dir"] as? String)?.let { entries { ndk = it } }
             }
         })
