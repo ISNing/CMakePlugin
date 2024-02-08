@@ -75,12 +75,13 @@ And for all the properties, there are several stub strings that will be replaced
 For some properties, instead of define them in the build script, you can also define them in a file like
 `local.properties` file in the root of the project, and read them into project extra properties.
 
-| Property Name                | Used for                                                                                                                                                                |
-|------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `ndk.dir`                    | Path to Android NDK (Only used for android targets)                                                                                                                     |
-| `{targetName}.sysRoot`       | Will be taken as the value of `CMAKE_SYSROOT`                                                                                                                           |
-| `{targetName}.gccInstallDir` | Will be taken as [a flag](https://clang.llvm.org/docs/ClangCommandLineReference.html#cmdoption-clang-gcc-install-dir) for clang indicating the path to gcc installation |
-| `{targetName}.gccToolchain`  | Will be taken as [a flag](https://clang.llvm.org/docs/ClangCommandLineReference.html#cmdoption-clang-toolchain) for clang indicating the path to gcc toolchain          |
+| Property Name                     | Used for                                                                                                                                                                |
+|-----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `ndk.dir`                         | Path to Android NDK (Only used for android targets)                                                                                                                     |
+| `{targetName}.sysRoot`            | Will be taken as the value of `CMAKE_SYSROOT`                                                                                                                           |
+| `{targetName}.gccInstallDir`      | Will be taken as [a flag](https://clang.llvm.org/docs/ClangCommandLineReference.html#cmdoption-clang-gcc-install-dir) for clang indicating the path to gcc installation |
+| `{targetName}.gccToolchain`       | Will be taken as [a flag](https://clang.llvm.org/docs/ClangCommandLineReference.html#cmdoption-clang-toolchain) for clang indicating the path to gcc toolchain          |
+| `{targetName}.extraCompilerFlags` | Extra flags for the compiler                                                                                                                                            |
 
 ## Auto-created tasks
 

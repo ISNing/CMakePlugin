@@ -220,6 +220,7 @@ fun ModifiableCMakeTarget<*, *>.autoProperties(project: Project) {
     autoSysRoot(project)
     autoGccInstallDir(project)
     autoGccToolchain(project)
+    autoExtraCompilerFlags(project)
 }
 
 fun ModifiableCMakeTarget<*, *>.autoSysRoot(project: Project) {
@@ -235,6 +236,11 @@ fun ModifiableCMakeTarget<*, *>.autoGccInstallDir(project: Project) {
 fun ModifiableCMakeTarget<*, *>.autoGccToolchain(project: Project) {
     if (project.properties.containsKey("$targetName.gccToolchain"))
         setGccToolchain(project.properties["$targetName.gccToolchain"] as String)
+}
+
+fun ModifiableCMakeTarget<*, *>.autoExtraCompilerFlags(project: Project) {
+    if (project.properties.containsKey("$targetName.extraCompilerFlags"))
+        addCompilerFlag(project.properties["$targetName.extraCompilerFlags"] as String)
 }
 
 fun ModifiableCMakeTarget<*, *>.useZigC() {
@@ -271,13 +277,7 @@ fun ModifiableCMakeTarget<*, *>.setSysRoot(sysRoot: String) {
  *
  * For more information, see: [Clang Document](https://clang.llvm.org/docs/ClangCommandLineReference.html#cmdoption-clang-gcc-install-dir)
  */
-fun ModifiableCMakeTarget<*, *>.setGccInstallDir(path: String) {
-    configParams += (ModifiableCEntriesImpl().apply {
-        flags = "--gcc-install-dir=$path"
-    } + ModifiableCXXEntriesImpl().apply {
-        flags = "--gcc-install-dir=$path"
-    }).asCMakeParams
-}
+fun ModifiableCMakeTarget<*, *>.setGccInstallDir(path: String) = addCompilerFlag("--gcc-install-dir=$path")
 
 /**
  * Set the path to the GCC toolchain directory.
@@ -285,11 +285,13 @@ fun ModifiableCMakeTarget<*, *>.setGccInstallDir(path: String) {
  *
  * For more information, see: [Clang Document](https://clang.llvm.org/docs/ClangCommandLineReference.html#cmdoption-clang-gcc-toolchain)
  */
-fun ModifiableCMakeTarget<*, *>.setGccToolchain(path: String) {
+fun ModifiableCMakeTarget<*, *>.setGccToolchain(path: String) = addCompilerFlag("--gcc-toolchain=$path")
+
+fun ModifiableCMakeTarget<*, *>.addCompilerFlag(flag: String) {
     configParams += (ModifiableCEntriesImpl().apply {
-        flags = "--gcc-toolchain=$path"
+        flags = listOfNotNull(configParams?.entries?.flags, flag).joinToString(" ")
     } + ModifiableCXXEntriesImpl().apply {
-        flags = "--gcc-toolchain=$path"
+        flags = listOfNotNull(configParams?.entries?.flags, flag).joinToString(" ")
     }).asCMakeParams
 }
 
