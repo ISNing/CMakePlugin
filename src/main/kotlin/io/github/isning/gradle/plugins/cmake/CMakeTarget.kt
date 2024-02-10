@@ -25,6 +25,7 @@ import io.github.isning.gradle.plugins.cmake.params.entries.lang.ModifiableCEntr
 import io.github.isning.gradle.plugins.cmake.params.entries.lang.ModifiableCXXEntriesImpl
 import io.github.isning.gradle.plugins.cmake.params.entries.plus
 import io.github.isning.gradle.plugins.cmake.utils.upperCamelCaseName
+import io.github.isning.gradle.plugins.cmake.utils.warpQuotes
 import org.gradle.api.Named
 import org.gradle.api.Project
 import org.gradle.internal.Factory
@@ -295,18 +296,26 @@ fun ModifiableCMakeTarget<*, *>.addCompilerFlag(flag: String) {
     }).asCMakeParams
 }
 
-fun ModifiableCMakeTarget<*, *>.forceUseLld() {
+fun ModifiableCMakeTarget<*, *>.setLinkerFlags(flags: String) {
+    configParams += CustomCMakeCacheEntries(
+        mapOf(
+            "CMAKE_EXE_LINKER_FLAGS_INIT" to flags,
+            "CMAKE_MODULE_LINKER_FLAGS_INIT" to flags,
+            "CMAKE_SHARED_LINKER_FLAGS_INIT" to flags,
+        )
+    ).asCMakeParams
+}
+
+fun ModifiableCMakeTarget<*, *>.forceUseLd(ld: String) {
     // Much better solution: CustomCMakeCacheEntries(mapOf("CMAKE_LINKER_TYPE" to "LLD"))
     // However, it's not released, wait for 3.29: https://cmake.org/cmake/help/git-master/variable/CMAKE_LINKER_TYPE.html
 
     // Note: There is no need to handle CMAKE_STATIC_LINKER_FLAGS_INIT (for static libraries) here
     // because the archiver is invoked, rather than the linker.
     // From: https://stackoverflow.com/a/68066428/18799127
-    configParams += CustomCMakeCacheEntries(
-        mapOf(
-            "CMAKE_EXE_LINKER_FLAGS_INIT" to "-fuse-ld=lld",
-            "CMAKE_MODULE_LINKER_FLAGS_INIT" to "-fuse-ld=lld",
-            "CMAKE_SHARED_LINKER_FLAGS_INIT" to "-fuse-ld=lld",
-        )
-    ).asCMakeParams
+    setLinkerFlags("-fuse-ld=${ld.warpQuotes()}")
+}
+
+fun ModifiableCMakeTarget<*, *>.forceUseLld() {
+    forceUseLd("lld")
 }
