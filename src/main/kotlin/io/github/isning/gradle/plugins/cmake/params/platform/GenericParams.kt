@@ -34,10 +34,14 @@ interface ModifiableGenericParams<T : ModifiableGenericEntries> : ModifiablePlat
 
 open class GenericParamsImpl : AbstractPlatformParams(), GenericParams {
     override val entries: CMakeCacheEntries? = GenericEntriesImpl()
+
+    override val generator: String? = "Unix Makefiles"
 }
 
 class ModifiableGenericParamsImpl : AbstractModifiablePlatformParams<ModifiableGenericEntries>(),
     ModifiableGenericParams<ModifiableGenericEntries> {
     override var entries: CMakeCacheEntries? by recorder.observed(ModifiableGenericEntriesImpl())
     override val cleanEntriesFactory: Factory<ModifiableGenericEntries> = Factory { ModifiableGenericEntriesImpl() }
+
+    override var generator: String? by recorder.observed("Unix Makefiles")
 }
