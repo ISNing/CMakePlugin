@@ -34,6 +34,16 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
             configure()
         }
 
+        fun String.genericFactory(configure: GenericTarget.() -> Unit): CMakeTargetFactory<GenericTarget> =
+            (this to { name: String ->
+                GenericTarget(
+                    project,
+                    name,
+                    inheritedParents,
+                    inheritedNames
+                )
+            }).autoFactory(configure)
+
         fun String.hostFactory(configure: HostTarget.() -> Unit): CMakeTargetFactory<HostTarget> =
             (this to { name: String ->
                 HostTarget(
@@ -180,6 +190,8 @@ interface CMakeTargetContainerWithFactoriesRegisterer : CMakeTargetContainerWith
             useZigC()
             setCompilerTarget(target)
         }
+
+        factories.add("generic".genericFactory { })
 
         // No extra parameters added
         factories.add("host".hostFactory { })
